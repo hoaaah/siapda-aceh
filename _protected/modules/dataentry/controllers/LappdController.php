@@ -3,16 +3,16 @@
 namespace app\modules\dataentry\controllers;
 
 use Yii;
-use app\models\Lapbds;
+use app\models\Lappds;
+use app\modules\dataentry\models\LappdsSearch;
 use app\models\RefPemda;
 use app\models\RefBantuan;
-use app\modules\dataentry\models\LapbdsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
-class ApbdController extends Controller
+class LappdController extends Controller
 {
     /**
      * @inheritdoc
@@ -52,13 +52,13 @@ class ApbdController extends Controller
     }    
 
     /**
-     * Lists all Lapbds models.
+     * Lists all Lappds models.
      * @return mixed
      */
     public function actionIndex()
     {
 
-        $searchModel = new LapbdsSearch();
+        $searchModel = new LappdsSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -69,7 +69,7 @@ class ApbdController extends Controller
     }
 
     /**
-     * Displays a single Lapbds model.
+     * Displays a single Lappds model.
      * @param integer $id
      * @return mixed
      */
@@ -82,29 +82,26 @@ class ApbdController extends Controller
     }
 
     /**
-     * Creates a new Lapbds model.
+     * Creates a new Lappds model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate($id)
     {
+        $pemda = RefPemda::findOne($id);
         // global parameters
         $tahun = $this->getTahun();
         $bulan = $this->getBulan();
         $tahunBulan = $tahun.$bulan;
-        $pemda = RefPemda::findOne($id);
         $refBantuan = RefBantuan::find()->all();
 
-        $model = new Lapbds();
+        $model = new Lappds();
         $model->bulan = $this->tahun.$this->bulan;
         $model->perwakilan_id = $pemda->perwakilan_id;
         $model->province_id = $pemda->province_id;
         $model->pemda_id = $pemda->id;
 
         if ($model->load(Yii::$app->request->post())) {
-            if($model->total_pendapatan) $model->total_pendapatan = str_replace(',', '.', $model->total_pendapatan);
-            if($model->total_belanja) $model->total_belanja = str_replace(',', '.', $model->total_belanja);
-            if($model->total_pembiayaan) $model->total_pembiayaan = str_replace(',', '.', $model->total_pembiayaan);
             IF($model->save()){
                 return 1;
             }ELSE{
@@ -119,7 +116,7 @@ class ApbdController extends Controller
     }
 
     /**
-     * Updates an existing Lapbds model.
+     * Updates an existing Lappds model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -135,9 +132,6 @@ class ApbdController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
-            if($model->total_pendapatan) $model->total_pendapatan = str_replace(',', '.', $model->total_pendapatan);
-            if($model->total_belanja) $model->total_belanja = str_replace(',', '.', $model->total_belanja);
-            if($model->total_pembiayaan) $model->total_pembiayaan = str_replace(',', '.', $model->total_pembiayaan);
             IF($model->save()){
                 return 1;
             }ELSE{
@@ -152,7 +146,7 @@ class ApbdController extends Controller
     }
 
     /**
-     * Deletes an existing Lapbds model.
+     * Deletes an existing Lappds model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -167,15 +161,15 @@ class ApbdController extends Controller
     }
 
     /**
-     * Finds the Lapbds model based on its primary key value.
+     * Finds the Lappds model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Lapbds the loaded model
+     * @return Lappds the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Lapbds::findOne($id)) !== null) {
+        if (($model = Lappds::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

@@ -15,15 +15,6 @@ $this->params['breadcrumbs'][] = ['label' => 'Data Capture', 'url' => ['index']]
 $this->params['breadcrumbs'][] = $this->title;
 
 CrudAsset::register($this);
-$poin = 0;
-if($opini['opini_id'] === "B4") $poin += 3;
-if($evaluasi['nilai_sakip'] >= 70) $poin += 2;
-if($evaluasi['nilai_sakip'] < 70) $poin += 1;
-if($evaluasi['kat_lppd'] >= 3) $poin += 3;
-if($evaluasi['kat_spip'] >= 2) $poin += 1;
-
-if($poin > 7) $rekomendasi = "Re-Assesment";
-if($poin <= 7) $rekomendasi = "Bimtek";
 ?>
 <div class="ref-pemda-view">
     <div class="row">
@@ -37,12 +28,13 @@ if($poin <= 7) $rekomendasi = "Bimtek";
                     </div>
                     <!-- /.widget-user-image -->
                     <div class="pull-right">
-                        <!-- <span class="info-box-icon bg-aqua-active"><?= $poin ?></span> -->
+                        <!-- bg-aqua-active -->
+                        <!-- <span class="info-box-icon bg-default"><i><?= $skorPemda ?></i></span> -->
                         <?= Html::a('<i class="glyphicon glyphicon-pencil"></i>', ['pemda', 'id' => $pemda->id],
                         [
                             'data-toggle'=>"modal",
                             'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
+                            'data-title'=>"Ubah",
                             'class'=>'btn btn-xs btn-default'
                         ]) ?>
                     </div>
@@ -107,10 +99,10 @@ if($poin <= 7) $rekomendasi = "Bimtek";
                                     'value' => "Jumlah Penduduk: ".number_format($profilPemda['jumlah_penduduk'])."ribu, Luas Wilayah: ".number_format($profilPemda['luas_wilayah'])."km2",
                                 ],
                                 [
-                                    'label' => 'Poin',
+                                    'label' => 'Rekomendasi',
                                     'format' => 'raw',
                                     // class="pull-right badge bg-red"
-                                    'value' => "Poin :  <i class=\"badge bg-aqua\">$poin</i>; Rekomendasi: $rekomendasi"
+                                    'value' => $rekomendasi. " ( $skorPemda )"
                                 ]
                             ],
                         ]) ?>                    
@@ -399,6 +391,84 @@ if($poin <= 7) $rekomendasi = "Bimtek";
                     'heading' => '<i class="glyphicon glyphicon-list"></i> Kasus Sejak Tahun '.(substr($tahunBulan, 0, 4)-3),
                 ],
                 'columns' => require(__DIR__.'/_columnsKasus.php'),
+            ])?>
+        </div>
+    </div>
+
+        <div class="row"> <!-- bagian Lappd dan  -->
+        <div class="col-md-6">
+            <?=GridView::widget([
+                'id'=>'crud-datatable',
+                'dataProvider' => $dataProviderLappd,
+                // 'filterModel' => $searchModelOpini,
+                'pager' => [
+                    'firstPageLabel' => 'Awal',
+                    'lastPageLabel'  => 'Akhir'
+                ],
+                'pjax'=>true,
+                'pjaxSettings'=>[
+                    'options' => ['id' => 'lappds-pjax', 'timeout' => 5000],
+                ], 
+                'toolbar'=> [
+                    ['content'=>
+                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/lappd/create', 'id' => $pemda->id],
+                        [
+                            'data-toggle'=>"modal",
+                            'data-target'=>"#myModal",
+                            'data-title'=>"Tambah",
+                            'class'=>'btn btn-default'
+                        ]).
+                        '{toggleData}'.
+                        '{export}'
+                    ],
+                ],          
+                'striped' => true,
+                'condensed' => true,
+                'responsive' => true,   
+                'responsiveWrap' => false,       
+                'panel' => [
+                    'type' => 'primary', 
+                    'heading' => '<i class="glyphicon glyphicon-list"></i> Penyampaian Lakip dan LPPD '.(substr($tahunBulan, 0, 4)-1),
+                ],
+                'columns' => require(__DIR__.'/_columnsLappd.php'),
+            ])?>
+        </div>
+
+        <div class="col-md-6">
+            <?=GridView::widget([
+                'id'=>'crud-datatable',
+                'dataProvider' => $dataProviderSimda,
+                // 'filterModel' => $searchModelOpini,
+                'pager' => [
+                    'firstPageLabel' => 'Awal',
+                    'lastPageLabel'  => 'Akhir'
+                ],
+                'pjax'=>true,
+                'pjaxSettings'=>[
+                    'options' => ['id' => 'simda-pjax', 'timeout' => 5000],
+                ], 
+                'toolbar'=> [
+                    ['content'=>
+                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/simda/create', 'id' => $pemda->id],
+                        [
+                            'data-toggle'=>"modal",
+                            'data-target'=>"#myModal",
+                            'data-title'=>"Tambah",
+                            'class'=>'btn btn-default'
+                        ]).
+                        '{toggleData}'.
+                        '{export}'
+                    ],
+                ],          
+                'striped' => true,
+                'condensed' => true,
+                'responsive' => true,   
+                'responsiveWrap' => false,       
+                'panel' => [
+                    'type' => 'primary', 
+                    'heading' => '<i class="glyphicon glyphicon-list"></i> Penggunaan Simda '.(substr($tahunBulan, 0, 4)),
+                ],
+                'columns' => require(__DIR__.'/_columnsSimda.php'),
             ])?>
         </div>
     </div>

@@ -4,13 +4,13 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Lapbds */
+/* @var $model app\models\Lsimdas */
 
 $this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Lapbds', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Lsimdas', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="lapbds-view">
+<div class="lsimdas-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -33,17 +33,23 @@ $this->params['breadcrumbs'][] = $this->title;
             'perwakilan_id',
             'province_id',
             'pemda_id',
-            'no_apbd',
-            'tanggal',
-            'stat_id',
-            'pihak_bantu',
+            'use_keu',
+            'use_keu_penganggaran',
+            'use_keu_penatausahaan',
+            'use_keu_pelaporan',
+            'use_bmd',
+            'use_gaji',
+            'use_pendapatan',
+            'use_perencanaan',
             'ket',
-            'total_pendapatan:decimal',
-            'total_belanja:decimal',
-            'total_pembiayaan:decimal',
             'user_id',
             'created',
             'updated',
+            'ver_keu',
+            'ver_bmd',
+            'ver_gaji',
+            'ver_pendapatan',
+            'ver_perencanaan',
         ],
     ]) ?>
 

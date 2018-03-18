@@ -5,6 +5,7 @@ use yii\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use yii\helpers\ArrayHelper;
 use kartik\select2\Select2;
+use yii\widgets\MaskedInput;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Lapbds */
@@ -41,6 +42,43 @@ use kartik\select2\Select2;
             'allowClear' => true
         ],
     ]); ?>
+
+    <div class="col-md-4">
+        <?= $form->field($model, 'total_pendapatan', ['enableClientValidation' => false])->widget(MaskedInput::classname(), [
+            'clientOptions' => [
+                'alias' =>  'decimal',
+                // 'groupSeparator' => ',',
+                'groupSeparator' => '.',
+                'radixPoint'=>',',                
+                'autoGroup' => true,
+                'removeMaskOnSubmit' => true,
+            ],
+        ]) ?>
+    </div>
+    <div class="col-md-4">
+        <?= $form->field($model, 'total_belanja', ['enableClientValidation' => false])->widget(MaskedInput::classname(), [
+            'clientOptions' => [
+                'alias' =>  'decimal',
+                // 'groupSeparator' => ',',
+                'groupSeparator' => '.',
+                'radixPoint'=>',',                
+                'autoGroup' => true,
+                'removeMaskOnSubmit' => true,
+            ],
+        ]) ?>
+    </div>
+    <div class="col-md-4">
+        <?= $form->field($model, 'total_pembiayaan', ['enableClientValidation' => false])->widget(MaskedInput::classname(), [
+            'clientOptions' => [
+                'alias' =>  'decimal',
+                // 'groupSeparator' => ',',
+                'groupSeparator' => '.',
+                'radixPoint'=>',',                
+                'autoGroup' => true,
+                'removeMaskOnSubmit' => true,
+            ],
+        ]) ?>
+    </div>    
 
     <?= $form->field($model, 'ket')->textInput(['maxlength' => true]) ?>
 

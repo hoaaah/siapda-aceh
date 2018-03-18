@@ -1,19 +1,18 @@
 <?php
 
-namespace app\modules\dataentry\controllers;
+namespace app\modules\parameter\controllers;
 
 use Yii;
-use app\models\Llkpd;
-use app\models\RefBantuan;
-use app\models\RefOpini;
-use app\models\RefPemda;
-use app\modules\dataentry\models\LlkpdSearch;
+use app\models\RefWilayah;
+use app\modules\parameter\models\RefWilayahSearch;
+use app\models\PemdaWilayah;
+use app\modules\parameter\models\PemdaWilayahSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
-class OpiniController extends Controller
+class WilayahController extends Controller
 {
     /**
      * @inheritdoc
@@ -30,29 +29,10 @@ class OpiniController extends Controller
         ];
     }
 
-    // Set Tahun
-    protected function getTahun(){
-        if(Yii::$app->session->get('tahun'))
-        {
-            $tahun = Yii::$app->session->get('tahun');
-        }ELSE{
-            $tahun = DATE('Y');
-        }
-        return $tahun;
-    }
-
-    // Set Bulan
-    protected function getBulan(){
-        if(Yii::$app->session->get('bulan'))
-        {
-            $tahun = Yii::$app->session->get('bulan');
-        }ELSE{
-            $tahun = DATE('m');
-        }
-        return substr("0".$tahun, -2);
-    }    
-
-
+    /**
+     * Lists all RefWilayah models.
+     * @return mixed
+     */
     public function actionIndex()
     {
         IF($this->cekakses() !== true){
@@ -65,7 +45,7 @@ class OpiniController extends Controller
         }ELSE{
             $tahun = DATE('Y');
         }
-        $searchModel = new LlkpdSearch();
+        $searchModel = new RefWilayahSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -75,8 +55,32 @@ class OpiniController extends Controller
         ]);
     }
 
+    public function actionPemda($id){
+        // if (isset($_POST['expandRowKey'])) {
+            $wilayah_id = $_POST['expandRowKey'];
+            $wilayah_id = $id;
+
+            $searchModel = new PemdaWilayahSearch();
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+            $dataProvider->query->andWhere(['wilayah_id' => $wilayah_id]);
+            $dataProvider->pagination->pageSize = 1;
+
+            // multiple griviews
+            $dataProvider->pagination->pageParam = 'pemda-page-'.$wilayah_id;
+            $dataProvider->sort->sortParam = 'pemda-sort-'.$wilayah_id;
+            return $this->renderPartial('_pemda', [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+                'wilayah_id' => $wilayah_id,
+            ]);
+
+        // }else{
+        //     return '<div class="alert alert-danger">No data found</div>';
+        // }
+    }
+
     /**
-     * Displays a single Llkpd model.
+     * Displays a single RefWilayah model.
      * @param integer $id
      * @return mixed
      */
@@ -98,68 +102,74 @@ class OpiniController extends Controller
     }
 
     /**
-     * Creates a new Llkpd model.
+     * Creates a new RefWilayah model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate($id)
+    public function actionCreate()
     {
-        $pemda = RefPemda::findOne($id);
-        $refBantuan = RefBantuan::find()->all();
-        $refOpini = RefOpini::find()->all();
-        $model = new Llkpd();  
-        $model->bulan = $this->tahun.$this->bulan;
-        $model->perwakilan_id = $pemda->perwakilan_id;
-        $model->province_id = $pemda->province_id;
-        $model->pemda_id = $pemda->id;
-        $model->stat_lk = 1;
+        IF($this->cekakses() !== true){
+            Yii::$app->getSession()->setFlash('warning',  'Anda tidak memiliki hak akses');
+            return $this->redirect(Yii::$app->request->referrer);
+        }    
+        IF(Yii::$app->session->get('tahun'))
+        {
+            $tahun = Yii::$app->session->get('tahun');
+        }ELSE{
+            $tahun = DATE('Y');
+        }
+
+        $model = new RefWilayah();
 
         if ($model->load(Yii::$app->request->post())) {
             IF($model->save()){
-                return 1;
+                echo 1;
             }ELSE{
-                // return 0;
-                return var_dump($model->getErrors());
+                echo 0;
             }
         } else {
             return $this->renderAjax('_form', [
                 'model' => $model,
-                'refBantuan' => $refBantuan,
-                'refOpini' => $refOpini,
             ]);
         }
     }
 
     /**
-     * Updates an existing Llkpd model.
+     * Updates an existing RefWilayah model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
      */
     public function actionUpdate($id)
     {
-        $refBantuan = RefBantuan::find()->all();
-        $refOpini = RefOpini::find()->all();
+        IF($this->cekakses() !== true){
+            Yii::$app->getSession()->setFlash('warning',  'Anda tidak memiliki hak akses');
+            return $this->redirect(Yii::$app->request->referrer);
+        }    
+        IF(Yii::$app->session->get('tahun'))
+        {
+            $tahun = Yii::$app->session->get('tahun');
+        }ELSE{
+            $tahun = DATE('Y');
+        }
 
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
             IF($model->save()){
-                return 1;
+                echo 1;
             }ELSE{
-                return 0;
+                echo 0;
             }
         } else {
             return $this->renderAjax('_form', [
                 'model' => $model,
-                'refBantuan' => $refBantuan,
-                'refOpini' => $refOpini,
             ]);
         }
     }
 
     /**
-     * Deletes an existing Llkpd model.
+     * Deletes an existing RefWilayah model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -183,15 +193,15 @@ class OpiniController extends Controller
     }
 
     /**
-     * Finds the Llkpd model based on its primary key value.
+     * Finds the RefWilayah model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Llkpd the loaded model
+     * @return RefWilayah the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Llkpd::findOne($id)) !== null) {
+        if (($model = RefWilayah::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
@@ -202,7 +212,7 @@ class OpiniController extends Controller
     protected function cekakses(){
 
         IF(Yii::$app->user->identity){
-            $akses = \app\models\RefUserMenu::find()->where(['kd_user' => Yii::$app->user->identity->kd_user, 'menu' => 302])->one();
+            $akses = \app\models\RefUserMenu::find()->where(['kd_user' => Yii::$app->user->identity->kd_user, 'menu' => 205])->one();
             IF($akses){
                 return true;
             }else{

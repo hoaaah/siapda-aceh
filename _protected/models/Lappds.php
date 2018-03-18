@@ -7,14 +7,33 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 use yii\behaviors\BlameableBehavior;
 
-class Lapbds extends \yii\db\ActiveRecord
+/**
+ * This is the model class for table "lappds".
+ *
+ * @property integer $id
+ * @property string $bulan
+ * @property string $perwakilan_id
+ * @property string $province_id
+ * @property string $pemda_id
+ * @property integer $katc_id
+ * @property string $tanggal
+ * @property string $pihak_bantu
+ * @property string $stat_id
+ * @property string $ket
+ * @property string $user_id
+ * @property string $created
+ * @property string $updated
+ *
+ * @property RefPemda $pemda
+ */
+class Lappds extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'lapbds';
+        return 'lappds';
     }
 
     /**
@@ -23,16 +42,15 @@ class Lapbds extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['bulan', 'perwakilan_id', 'province_id', 'pemda_id', 'no_apbd', 'stat_id', 'pihak_bantu'], 'required'],
-            [['perwakilan_id', 'province_id'], 'integer'],
+            [['bulan', 'perwakilan_id', 'province_id', 'pemda_id', 'katc_id'], 'required'],
+            [['katc_id'], 'integer'],
             [['tanggal', 'created', 'updated'], 'safe'],
             [['bulan'], 'string', 'max' => 6],
+            [['perwakilan_id', 'province_id', 'stat_id'], 'string', 'max' => 2],
             [['pemda_id'], 'string', 'max' => 5],
-            [['no_apbd', 'pihak_bantu'], 'string', 'max' => 20],
-            [['stat_id'], 'string', 'max' => 2],
+            [['pihak_bantu'], 'string', 'max' => 20],
             [['ket'], 'string', 'max' => 255],
-            [['user_id'], 'string', 'max' => 3],
-            [['total_pendapatan', 'total_belanja', 'total_pembiayaan'], 'number'],
+            [['user_id'], 'string', 'max' => 4],
             [['pemda_id'], 'exist', 'skipOnError' => true, 'targetClass' => RefPemda::className(), 'targetAttribute' => ['pemda_id' => 'id']],
         ];
     }
@@ -48,14 +66,11 @@ class Lapbds extends \yii\db\ActiveRecord
             'perwakilan_id' => 'Perwakilan ID',
             'province_id' => 'Province ID',
             'pemda_id' => 'Pemda ID',
-            'no_apbd' => 'No Apbd',
+            'katc_id' => 'Katc ID',
             'tanggal' => 'Tanggal',
-            'stat_id' => 'Stat ID',
             'pihak_bantu' => 'Pihak Bantu',
+            'stat_id' => 'Stat ID',
             'ket' => 'Ket',
-            'total_pendapatan' => 'Total Pendapatan',
-            'total_belanja' => 'Total Belanja',
-            'total_pembiayaan' => 'Total Pembiayaan',
             'user_id' => 'User ID',
             'created' => 'Created',
             'updated' => 'Updated',
@@ -79,22 +94,18 @@ class Lapbds extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
     public function getPemda()
     {
         return $this->hasOne(RefPemda::className(), ['id' => 'pemda_id']);
     }
 
+    public function getKatc()
+    {
+        return $this->hasOne(Katcs::className(), ['id' => 'katc_id']);
+    }
+
     public function getBantuSusun()
     {
         return $this->hasOne(RefBantuan::className(), ['id' => 'pihak_bantu']);
-    }
-
-    public function getStatus()
-    {
-        if($this->stat_id == 1) return "TW";
-        return "TTW";
     }
 }

@@ -19,6 +19,11 @@ use app\models\Levals;
 use app\modules\dataentry\models\LevalsSearch;
 use app\models\Lkasus;
 use app\modules\dataentry\models\LkasusSearch;
+use app\models\SkorPemda;
+use app\models\Lappds;
+use app\modules\dataentry\models\LappdsSearch;
+use app\models\Lsimdas;
+use app\modules\dataentry\models\LsimdasSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -201,6 +206,30 @@ class DatacaptureController extends Controller
         $dataProviderKasus->pagination->pageParam = 'kasus-page';
         $dataProviderKasus->sort->sortParam = 'kasus-sort';     
 
+        // skor Pemda 
+        $skorPemdaClass = new SkorPemda();
+        $skorPemda = $skorPemdaClass->skorPemda($tahun, $model->perwakilan_id, $model->id);
+        $rekomendasi = $skorPemda >= 7 ? "Re-Assesment" : "Bimtek SPIP";
+
+        // daftar Penyampaian SAKIP dan LPPD tahun ini
+        $searchModelLappd = new LappdsSearch();
+        $dataProviderLappd = $searchModelLappd->search(Yii::$app->request->queryParams);
+        $dataProviderLappd->query->andWhere(['pemda_id' => $id]);
+        $dataProviderLappd->query->andWhere("bulan LIKE '$tahun%'");
+        $dataProviderLappd->query->andWhere("bulan <= $tahunBulan");
+        $dataProviderLappd->query->orderBy('bulan DESC');
+        $dataProviderLappd->pagination->pageParam = 'lappd-page';
+        $dataProviderLappd->sort->sortParam = 'lappd-sort';
+        
+        // daftar pengguna Simda tahun ini
+        $searchModelSimda = new LsimdasSearch();
+        $dataProviderSimda = $searchModelSimda->search(Yii::$app->request->queryParams);
+        $dataProviderSimda->query->andWhere(['pemda_id' => $id]);
+        // $dataProviderSimda->query->andWhere("bulan LIKE '$tahun%'");
+        $dataProviderSimda->query->andWhere("bulan <= $tahunBulan");
+        $dataProviderSimda->query->orderBy('bulan DESC');
+        $dataProviderSimda->pagination->pageParam = 'simda-page';
+        $dataProviderSimda->sort->sortParam = 'simda-sort';   
 
         if($request->isAjax){
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -229,6 +258,10 @@ class DatacaptureController extends Controller
                 'dataProviderKada' => $dataProviderKada,
                 'dataProviderEvaluasi' => $dataProviderEvaluasi,
                 'dataProviderKasus' => $dataProviderKasus,
+                'dataProviderLappd' => $dataProviderLappd,
+                'dataProviderSimda' => $dataProviderSimda,
+                'skorPemda' => $skorPemda,
+                'rekomendasi' => $rekomendasi,
             ]);
         }
     }
