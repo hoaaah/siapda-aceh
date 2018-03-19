@@ -7,6 +7,7 @@ use app\models\RefPemda;
 use app\models\RefBantuan;
 use app\modules\dataentry\models\RefPemdaSearch;
 use app\models\Llkpd;
+use app\models\Lmou;
 use app\modules\dataentry\models\LlkpdSearch;
 use app\models\Lapbul;
 use app\models\Lapbds;
@@ -109,6 +110,12 @@ class DatacaptureController extends Controller
         // data pemda
         $model = $this->findModel($id);
         $lapbul = Lapbul::find()->where(['perwakilan_id' => $model->perwakilan_id, 'bulan' => $tahunBulan])->orderBy('bulan DESC')->one();
+
+        // data MoU
+        $mou =  Lmou::find()->where(['pemda_id' => $id])
+        // ->andWhere("bulan LIKE '$tahun%'")
+        ->andWhere("bulan <= $tahunBulan")
+        ->orderBy('id DESC')->one();
 
         // data profil
         $profilPemda =  LprofilPemda::find()->where(['pemda_id' => $id])
@@ -225,7 +232,7 @@ class DatacaptureController extends Controller
         $searchModelSimda = new LsimdasSearch();
         $dataProviderSimda = $searchModelSimda->search(Yii::$app->request->queryParams);
         $dataProviderSimda->query->andWhere(['pemda_id' => $id]);
-        // $dataProviderSimda->query->andWhere("bulan LIKE '$tahun%'");
+        $dataProviderSimda->query->andWhere("bulan LIKE '$tahun%'");
         $dataProviderSimda->query->andWhere("bulan <= $tahunBulan");
         $dataProviderSimda->query->orderBy('bulan DESC');
         $dataProviderSimda->pagination->pageParam = 'simda-page';
@@ -252,6 +259,7 @@ class DatacaptureController extends Controller
                 'kada' => $kada,
                 'waKada' => $waKada,
                 'evaluasi' => $evaluasi,
+                'mou' => $mou,
                 'dataProviderProfil' => $dataProviderProfil,
                 'dataProviderOpini' => $dataProviderOpini,
                 'dataProviderApbd' => $dataProviderApbd,
@@ -311,6 +319,44 @@ class DatacaptureController extends Controller
             ]);
         }
     }
+
+    public function actionMou($id)
+    {
+        $pemda = RefPemda::findOne($id);
+        // global parameters
+        $tahun = $this->getTahun();
+        $bulan = $this->getBulan();
+        $tahunBulan = $tahun.$bulan;
+
+        $pemda = $this->findModel($id);
+        $latestMou = Lmou::find()->where(['pemda_id' => $id])->orderBy('id DESC')->one();
+        if($tahunBulan == $latestMou['bulan']){
+            $model = $latestMou;
+        }else{
+            $model = new Lmou();
+            $model->bulan = $this->tahun.$this->bulan;
+            $model->perwakilan_id = $pemda->perwakilan_id;
+            $model->province_id = $pemda->province_id;
+            $model->pemda_id = $pemda->id;
+        }
+
+
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->validate()){
+            }
+            IF($model->save()){
+                // return 1;
+                return $this->redirect(Yii::$app->request->referrer);
+            }ELSE{
+                var_dump($model->getErrors());
+                // return 0;
+            }
+        } else {
+            return $this->renderAjax('_formMou', [
+                'model' => $model,
+            ]);
+        }
+    }    
 
     public function actionDeleteImage($id)
     {

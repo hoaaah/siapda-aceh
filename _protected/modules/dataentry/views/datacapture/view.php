@@ -167,6 +167,49 @@ CrudAsset::register($this);
         </div>
     </div>
 
+    <?php if($mou): 
+    if($mou->tanggal_berlaku >= date('Y-m-d')){
+        $calloutClass = "callout-info"; 
+        $today = new DateTime();
+        $tanggalBerlaku  = new DateTime($mou->tanggal_berlaku);
+        $dDiff = $today->diff($tanggalBerlaku);
+        // var_dump($dDiff->format('%R')); // use for point out relation: smaller/greater
+        // var_dump($dDiff->days);
+        if($dDiff->days <= 30) $calloutClass = "callout-warning";
+
+    }else{
+        $calloutClass = "callout-danger";
+    }
+        ?>
+    <div class="row" > <!-- MOU -->
+        <div class="pad margin no-print">
+            <div class="callout <?= $calloutClass ?>" style="margin-bottom: 0!important;">
+                <h4><i class="fa fa-info"></i> MoU No: <?= "\"$mou->no_mou\""." / "."\"$mou->no_mou_pemda\""." tentang ".$mou->judul ?> (<?= date('d-m-Y', strtotime($mou->tanggal_mou)) ." s/d ". date('d-m-Y', strtotime($mou->tanggal_berlaku)) ?>)
+                <?= Html::a('<i class="glyphicon glyphicon-pencil"></i>', ['mou', 'id' => $pemda->id],
+                [
+                    'title'=> "Input MoU Baru",
+                    'data-toggle'=>"modal",
+                    'data-target'=>"#myModal",
+                    'data-title'=>"Input MoU Baru",
+                    // 'class'=>'btn btn-xs btn-warning'
+                ]) ?>
+                </h4>
+                <?= $mou->ruang_lingkup ?>
+            </div>
+        </div>
+    </div>
+    <?php else:
+        echo Html::a('<i class="glyphicon glyphicon-pencil"></i> Input MoU Baru', ['mou', 'id' => $pemda->id],
+        [
+            'title'=> "Input MoU Baru",
+            'data-toggle'=>"modal",
+            'data-target'=>"#myModal",
+            'data-title'=>"Input MoU Baru",
+            'class'=>'btn btn-lg btn-info'
+        ]);
+        endif;
+    ?>
+
     <div class="row"> <!--Bagian Profil dan Kada -->
         <div class="col-md-6">
             <?= GridView::widget([
