@@ -10,21 +10,19 @@ use yii\bootstrap\Modal;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
 
-$this->title = 'Ldanadesa Penyaluran Rkuds';
+$this->title = 'Penyaluran Dana Desa ke RKUD';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="ldanadesa-penyaluran-rkud-index">
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+    
+    <?= $this->render('_form', [
+        'model' => $model,
+        'pemda_id' => $pemda_id,
+        'pendapatan_desa_id' => $pendapatan_desa_id,
+    ]) ?>
 
-    <p>
-        <?= Html::a('Tambah Ldanadesa Penyaluran Rkud', ['create'], [
-                                'class' => 'btn btn-xs btn-success',
-                                'data-toggle'=>"modal",
-                                'data-target'=>"#myModal",
-                                'data-title'=>"Tambah",
-                                ]) ?>
-    </p>
     <?= GridView::widget([
         'id' => 'ldanadesa-penyaluran-rkud',    
         'dataProvider' => $dataProvider,
@@ -51,35 +49,31 @@ $this->params['breadcrumbs'][] = $this->title;
         ],        
         // 'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
-            'tahun',
-            'bulan',
-            'perwakilan_id',
-            'province_id',
+            ['class' => 'kartik\grid\SerialColumn'],
             // 'pemda_id',
             // 'pendapatan_desa_id',
-            // 'jumlah_desa',
-            // 'nilai',
+            'jumlah_desa',
+            'nilai:decimal',
             // 'user_id',
             // 'created',
             // 'updated',
 
             [
                 'class' => 'kartik\grid\ActionColumn',
-                'template' => '{view} {update} {delete}',
+                'template' => '{update} {delete}',
                 'noWrap' => true,
                 'vAlign'=>'top',
                 'buttons' => [
                         'update' => function ($url, $model) {
-                          return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url,
-                              [  
-                                 'title' => Yii::t('yii', 'ubah'),
-                                 'data-toggle'=>"modal",
-                                 'data-target'=>"#myModal",
-                                 'data-title'=> "Ubah",
-                              ]);
+                            return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url,
+                            [
+                                'id' => 'update-rkud-'.$model->id,
+                                'title' => Yii::t('yii', 'ubah'),
+                                'data-pjax' => 0
+                                // 'data-toggle'=>"modal",
+                                // 'data-target'=>"#myModal",
+                                // 'data-title'=> "Ubah",
+                            ]);
                         },
                         'view' => function ($url, $model) {
                           return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url,
@@ -116,10 +110,28 @@ $this->registerJs(<<<JS
         modal.find('.modal-title').html(title)
         modal.find('.modal-body').html('<i class=\"fa fa-spinner fa-spin\"></i>')
         $.post(href)
-            .done(function( data ) {
-                modal.find('.modal-body').html(data)
-            });
-        })
+        .done(function( data ) {
+            modal.find('.modal-body').html(data)
+        });
+    })
+
+    // $("a[id^='update-rkud-']").on( "click", function(event){
+    $('#myModal').on("click", "a[id^='update-rkud-']", function(event){
+        event.preventDefault();
+        var href = $(this).attr('href');
+        $.get(href).done(function( data ) {
+            $('#penyaluran-rkud-form').attr('action', href);
+            $('#ldanadesapenyaluranrkud-nilai').val(data.nilai);
+            $('#ldanadesapenyaluranrkud-jumlah_desa').val(data.jumlah_desa);
+            $('#salur-rkud-submit-button').removeClass('btn-success');
+            $('#salur-rkud-submit-button').addClass('btn-primary');
+            $('#salur-rkud-submit-button').html('Update');
+        });
+    } );
+    $('#myModal').on("click", "a[title^='Hapus']", function(event){
+        event.preventDefault();
+        console.log("Hapus G Nih?")
+    });
 JS
 );
 ?>

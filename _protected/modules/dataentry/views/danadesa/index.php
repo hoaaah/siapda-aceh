@@ -71,21 +71,21 @@ $this->params['breadcrumbs'][] = $this->title;
                 'vAlign'=>'top',
                 'buttons' => [
                         'salur_rkud' => function ($url, $model) {
-                          return Html::a('<span class="glyphicon glyphicon-forward"></span>', ['/dataentry/danadesarkud', 'tahun' => $model->tahun, 'pemda_id' => $model->pemda_id],
+                          return Html::a('<span class="glyphicon glyphicon-forward"></span>', ['/dataentry/danadesarkud', 'pemda_id' => $model->pemda_id, 'pendapatan_desa_id' => $model->pendapatan_desa_id],
                               [  
                                  'title' => 'Input Penyaluran ke RKUD',
                                  'data-toggle'=>"modal",
                                  'data-target'=>"#myModal",
-                                 'data-title'=> "Ubah",
+                                 'data-title'=> "Penyaluran ke RKUD",
                               ]);
                         },
                         'salur_rkudesa' => function ($url, $model) {
-                          return Html::a('<span class="glyphicon glyphicon-forward"></span>', ['danadesarkud', 'tahun' => $model->tahun, 'pemda_id' => $model->pemda_id],
+                          return Html::a('<span class="glyphicon glyphicon-forward"></span>', ['danadesarkud', 'pemda_id' => $model->pemda_id, 'pendapatan_desa_id' => $model->pendapatan_desa_id],
                               [  
                                  'title' => 'Input Penyaluran ke RKUDesa',
                                  'data-toggle'=>"modal",
                                  'data-target'=>"#myModal",
-                                 'data-title'=> "Ubah",
+                                 'data-title'=> "Penyaluran ke RKUDesa",
                               ]);
                         },                        
                         'update' => function ($url, $model) {

@@ -5,6 +5,8 @@ namespace app\modules\dataentry\controllers;
 use Yii;
 use app\models\LdanadesaPenyaluranRkud;
 use app\modules\dataentry\models\LdanadesaPenyaluranRkudSearch;
+use app\models\RefPemda;
+use app\models\RefPendapatanDesa;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -53,16 +55,37 @@ class DanadesarkudController extends Controller
      * Lists all LdanadesaPenyaluranRkud models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($pemda_id, $pendapatan_desa_id)
     {
+        $request = Yii::$app->request;
+        if(!$request->isAjax) return $this->redirect('danadesa');
+        // global parameters
+        $tahun = $this->getTahun();
+        $bulan = $this->getBulan();
+        $tahunBulan = $tahun.$bulan;
+
+        $pemda = RefPemda::findOne($pemda_id);
+
+        // insert
+        $model = new LdanadesaPenyaluranRkud();
+        $model->tahun = $tahun;
+        $model->bulan = $this->tahun.$this->bulan;
+        $model->perwakilan_id = $pemda->perwakilan_id;
+        $model->province_id = $pemda->province_id;
+        $model->pemda_id = $pemda->id;
+        $model->pendapatan_desa_id = $pendapatan_desa_id;
 
         $searchModel = new LdanadesaPenyaluranRkudSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->query->andWhere(['tahun' => $tahun, 'pemda_id' => $pemda_id]);
 
-        return $this->render('index', [
+        return $this->renderAjax('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'Tahun' => $tahun,
+            'tahun' => $tahun,
+            'model' => $model,
+            'pemda_id' => $pemda_id,
+            'pendapatan_desa_id' => $pendapatan_desa_id,
         ]);
     }
 
@@ -84,20 +107,26 @@ class DanadesarkudController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($pemda_id, $pendapatan_desa_id)
     {
         // global parameters
         $tahun = $this->getTahun();
         $bulan = $this->getBulan();
         $tahunBulan = $tahun.$bulan;
 
+        $pemda = RefPemda::findOne($pemda_id);
+
+        // insert
         $model = new LdanadesaPenyaluranRkud();
+        $model->tahun = $tahun;
         $model->bulan = $this->tahun.$this->bulan;
         $model->perwakilan_id = $pemda->perwakilan_id;
         $model->province_id = $pemda->province_id;
         $model->pemda_id = $pemda->id;
+        $model->pendapatan_desa_id = $pendapatan_desa_id;
 
         if ($model->load(Yii::$app->request->post())) {
+            $model->nilai = str_replace(',', '.', $model->nilai);
             IF($model->save()){
                 return 1;
             }ELSE{
@@ -126,12 +155,18 @@ class DanadesarkudController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
+            $model->nilai = str_replace(',', '.', $model->nilai);
             IF($model->save()){
                 return 1;
             }ELSE{
                 return 0;
             }
         } else {
+            if(Yii::$app->request->isAjax) {
+                \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                return $model;
+            }
+            
             return $this->renderAjax('_form', [
                 'model' => $model,
             ]);
