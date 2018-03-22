@@ -16,6 +16,7 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk DJPK Kemenkeu.*/
 
@@ -67,6 +68,29 @@ class SiteController extends Controller
         ];
     }
 
+    // Set Tahun
+    protected function getTahun(){
+        if(Yii::$app->session->get('tahun'))
+        {
+            $tahun = Yii::$app->session->get('tahun');
+        }ELSE{
+            $tahun = DATE('Y');
+        }
+        return $tahun;
+    }
+
+    // Set Bulan
+    protected function getBulan(){
+        if(Yii::$app->session->get('bulan'))
+        {
+            $tahun = Yii::$app->session->get('bulan');
+        }ELSE{
+            $tahun = DATE('m');
+        }
+        return substr("0".$tahun, -2);
+    }
+    
+
     //Choose what year this application will use as default year --@hoaaah
     public function actionTahun($id)
     {
@@ -97,12 +121,11 @@ class SiteController extends Controller
 
     public function actionIndex()
     {
-        IF(Yii::$app->session->get('tahun'))
-        {
-            $Tahun = Yii::$app->session->get('tahun');
-        }ELSE{
-            $Tahun = DATE('Y');
-        }
+        // global parameters
+        $tahun = $this->getTahun();
+        $bulan = $this->getBulan();
+        $tahunBulan = $tahun.$bulan;
+
         $sticky = \app\models\TaPengumuman::find()->where(['published' => 1, 'sticky' => 1]);
         $pengumuman = \app\models\TaPengumuman::find()->where(['published' => 1, 'sticky' => 0]);
         $sticky->andWhere('diumumkan_di = 3 OR diumumkan_di = 2');
@@ -115,11 +138,195 @@ class SiteController extends Controller
             'pagination' => [
                 'pageSize' => $sticky + 3,
             ],
-        ]);                
-        return $this->render('index',[
-                    'dataProvider' => $dataProvider,
-                ]);
+        ]);
         
+        // skoring
+        $perwakilanId = Yii::$app->user->identity->perwakilan_id ? : '%';
+        $skorPemdaClass = new \app\models\SkorPemda();
+        $skorBimtek = $skorPemdaClass->querySkorTampil($tahun, $perwakilanId, '%', 1);
+        $skorReassesment = $skorPemdaClass->querySkorTampil($tahun, $perwakilanId, '%', 2);
+
+        // grafik opini
+        $opiniQuery = Yii::$app->db->createCommand("
+            SELECT 
+            SUM(a.opini_0) AS tahun0,
+            SUM(a.opini_1) AS tahun1,
+            SUM(a.opini_2) AS tahun2,
+            SUM(a.opini_3) AS tahun3,
+            SUM(a.opini_4) AS tahun4
+            FROM
+            (
+                SELECT b.pemda_id, 
+                SUM(b.opini_tahun_0) AS opini_0,
+                SUM(b.opini_tahun_1) AS opini_1,
+                SUM(b.opini_tahun_2) AS opini_2,
+                SUM(b.opini_tahun_3) AS opini_3,
+                SUM(b.opini_tahun_4) AS opini_4
+                FROM
+                (
+                    SELECT pemda_id, 1 AS opini_tahun_0, 0 AS opini_tahun_1, 0 AS opini_tahun_2, 0 AS opini_tahun_3 , 0 AS opini_tahun_4
+                    FROM llkpd WHERE bulan LIKE CONCAT(:tahun ,'%') AND opini_id = 'B4' AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                    GROUP BY pemda_id
+                    UNION ALL
+                    SELECT pemda_id, 0 AS opini_tahun_0, 1 AS opini_tahun_1, 0 AS opini_tahun_2, 0 AS opini_tahun_3 , 0 AS opini_tahun_4
+                    FROM llkpd WHERE bulan LIKE CONCAT((:tahun -1) ,'%') AND opini_id = 'B4' AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                    GROUP BY pemda_id
+                    UNION ALL
+                    SELECT pemda_id, 0 AS opini_tahun_0, 0 AS opini_tahun_1, 1 AS opini_tahun_2, 0 AS opini_tahun_3 , 0 AS opini_tahun_4
+                    FROM llkpd WHERE bulan LIKE CONCAT((:tahun -2) ,'%') AND opini_id = 'B4' AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                    GROUP BY pemda_id
+                    UNION ALL
+                    SELECT pemda_id, 0 AS opini_tahun_0, 0 AS opini_tahun_1, 0 AS opini_tahun_2, 0 AS opini_tahun_3 , 1 AS opini_tahun_4
+                    FROM llkpd WHERE bulan LIKE CONCAT((:tahun -4) ,'%') AND opini_id = 'B4' AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                    GROUP BY pemda_id
+                ) b GROUP BY b.pemda_id
+            ) a
+        ")->bindValues([
+            ':tahun' => $tahun,
+            ':perwakilanId' => $perwakilanId,
+            ':pemdaId' => '%',
+        ])->queryOne();
+
+        // grafik simda
+        $simdaQuery = Yii::$app->db->createCommand("
+            SELECT COUNT(id) AS pemda, SUM(a.keu) AS keu, SUM(a.bmd) AS bmd, SUM(pendapatan) AS pendapatan, SUM(perencanaan) AS perencanaan
+            FROM
+            (
+                SELECT
+                a.id, a.name, IFNULL(b.keu,0) AS keu, IFNULL(c.bmd, 0) AS bmd, IFNULL(d.pendapatan, 0) AS pendapatan, IFNULL(e.perencanaan, 0) AS perencanaan
+                FROM
+                (
+                    SELECT * FROM ref_pemda
+                    WHERE id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                )a LEFT JOIN
+                (
+                    SELECT pemda_id, use_keu AS keu
+                    FROM lsimdas
+                    WHERE bulan LIKE CONCAT(:tahun ,'%') AND bulan <= :tahunBulan AND use_keu = 1 AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                    GROUP BY pemda_id
+                ) b ON a.id = b.pemda_id
+                LEFT JOIN
+                (
+                    SELECT pemda_id, use_bmd AS bmd
+                    FROM lsimdas
+                    WHERE bulan LIKE CONCAT(:tahun ,'%') AND bulan <= :tahunBulan AND use_bmd = 1 AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                    GROUP BY pemda_id
+                ) c ON a.id = c.pemda_id
+                LEFT JOIN
+                (
+                    SELECT pemda_id, use_pendapatan AS pendapatan
+                    FROM lsimdas
+                    WHERE bulan LIKE CONCAT(:tahun ,'%') AND bulan <= :tahunBulan AND use_pendapatan = 1 AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                    GROUP BY pemda_id
+                ) d ON a.id = d.pemda_id
+                LEFT JOIN
+                (
+                    SELECT pemda_id, use_perencanaan AS perencanaan
+                    FROM lsimdas
+                    WHERE bulan LIKE CONCAT(:tahun ,'%') AND bulan <= :tahunBulan AND use_perencanaan = 1 AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                    GROUP BY pemda_id
+                ) e ON a.id = e.pemda_id
+            ) a
+        ")->bindValues([
+            ':tahun' => $tahun,
+            ':perwakilanId' => $perwakilanId,
+            ':pemdaId' => '%',
+            ':tahunBulan' => $tahunBulan,
+        ])->queryOne();
+
+        // grafik siskeudes
+        $siskeudesQuery = Yii::$app->db->createCommand("
+            SELECT COUNT(id) AS pemda, SUM(a.siskeudes) AS siskeudes, SUM(a.kompilasi) AS kompilasi
+            FROM
+            (
+                -- Pilih yang terbesar saja nih
+                SELECT a.id, a.name, IFNULL(b.siskeudes, 0) AS siskeudes, IFNULL(c.kompilasi, 0) AS kompilasi
+                FROM ref_pemda a
+                LEFT JOIN
+                (
+                    SELECT
+                    a.pemda_id, CASE WHEN jumlah_desa_implementasi > 0 THEN 1 ELSE 0 END AS siskeudes
+                    FROM ldanadesa_siskeudes a
+                    WHERE bulan LIKE CONCAT(:tahun ,'%') AND bulan <= :tahunBulan AND perwakilan_id LIKE :perwakilanId AND pemda_id LIKE :pemdaId AND
+                    a.bulan = (SELECT MAX(b.bulan) FROM ldanadesa_siskeudes b WHERE b.pemda_id = a.pemda_id)
+                ) b ON a.id = b.pemda_id
+                LEFT JOIN
+                (
+                    SELECT
+                    a.pemda_id, CASE WHEN kompilasi > 0 THEN 1 ELSE 0 END AS kompilasi
+                    FROM ldanadesa_siskeudes a
+                    WHERE bulan LIKE CONCAT(:tahun ,'%') AND bulan <= :tahunBulan AND perwakilan_id LIKE :perwakilanId AND pemda_id LIKE :pemdaId AND
+                    a.bulan = (SELECT MAX(b.bulan) FROM ldanadesa_siskeudes b WHERE b.pemda_id = a.pemda_id)
+                ) c ON a.id = c.pemda_id
+                WHERE a.perwakilan_id LIKE :perwakilanId AND a.id LIKE '%'
+            ) a
+        ")->bindValues([
+            ':tahun' => $tahun,
+            ':perwakilanId' => $perwakilanId,
+            ':pemdaId' => '%',
+            ':tahunBulan' => $tahunBulan,
+        ])->queryOne();
+
+        return $this->render('index',[
+            'tahun' => $tahun,
+            'dataProvider' => $dataProvider,
+            'skorBimtek' => $skorBimtek,
+            'skorReassesment' => $skorReassesment,
+            'opiniGrafik' => $opiniQuery,
+            'simdaGrafik' => $simdaQuery,
+            'siskeudesQuery' => $siskeudesQuery,
+        ]);
+        
+    }
+
+    public function actionAsses()
+    {
+        IF(Yii::$app->session->get('tahun'))
+        {
+            $tahun = Yii::$app->session->get('tahun');
+        }ELSE{
+            $tahun = DATE('Y');
+        }
+
+        $perwakilanId = Yii::$app->user->identity->perwakilan_id ? : '%';
+        $skorPemdaClass = new \app\models\SkorPemda();
+        $skorReassesment = $skorPemdaClass->querySkorTampil($tahun, $perwakilanId, '%', 2);
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $skorReassesment,
+            'pagination' => [
+                'pageSize' => 30,
+            ],
+        ]);
+
+        return $this->renderAjax('skor', [
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionBimtek()
+    {
+        IF(Yii::$app->session->get('tahun'))
+        {
+            $tahun = Yii::$app->session->get('tahun');
+        }ELSE{
+            $tahun = DATE('Y');
+        }
+
+        $perwakilanId = Yii::$app->user->identity->perwakilan_id ? : '%';
+        $skorPemdaClass = new \app\models\SkorPemda();
+        $skorBimtek = $skorPemdaClass->querySkorTampil($tahun, $perwakilanId, '%', 1);
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $skorBimtek,
+            'pagination' => [
+                'pageSize' => 30,
+            ],
+        ]);
+
+        return $this->renderAjax('skor', [
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     // Bagian ini untuk menampilkan pengumuman

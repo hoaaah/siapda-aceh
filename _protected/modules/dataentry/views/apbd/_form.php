@@ -55,6 +55,7 @@ use yii\widgets\MaskedInput;
             ],
         ]) ?>
     </div>
+    
     <div class="col-md-4">
         <?= $form->field($model, 'total_belanja', ['enableClientValidation' => false])->widget(MaskedInput::classname(), [
             'clientOptions' => [

@@ -22,8 +22,8 @@ class RefPemda extends \yii\db\ActiveRecord
         return [
             [['id', 'province_id', 'name'], 'required'],
             [['id'], 'string', 'max' => 5],
-            [['province_id'], 'integer', 'max' => 2],
-            [['perwakilan_id'], 'integer', 'max' => 2],
+            [['province_id'], 'integer'],
+            [['perwakilan_id'], 'integer'],
             [['name'], 'string', 'max' => 50],
             [['image_name', 'saved_image'], 'string', 'max' => 50],
             [['ibukota'], 'string', 'max' => 50],

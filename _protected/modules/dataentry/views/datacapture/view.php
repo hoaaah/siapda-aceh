@@ -24,7 +24,7 @@ CrudAsset::register($this);
                 <!-- Add the bg color to the header using any of the bg-* classes -->
                 <div class="widget-user-header bg-aqua-active">
                     <div class="widget-user-image">
-                        <img class="img-circle" src="<?= $pemda['saved_image'] ? $pemda->getImageUrl() : Url::to('@web/uploads/logo.png') ?>" alt="User Avatar">
+                        <img class="img-circle" src="<?= $pemda['saved_image'] ? $pemda->getImageUrl() : Url::to('@web/uploads/no_logo.gif', false) ?>" alt="User Avatar">
                     </div>
                     <!-- /.widget-user-image -->
                     <div class="pull-right">

@@ -29,10 +29,10 @@
 	02 => Data Capture (Inputing)
 	03 => Kegiatan (Inputing)
 	04 => Data Audit
-	05 => 
-	06 => 
-	07 => 
-	08 => 
+	05 => Desa => Alokasi APBN Dana Desa
+	06 => Desa => Siskeudes (termasuk kompilasi)
+	07 => Assesment => APIP
+	08 => Assesment => SPIP
 	09 => 
 	10 => 
 	11 => 
