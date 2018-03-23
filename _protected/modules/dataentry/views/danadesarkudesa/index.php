@@ -13,7 +13,7 @@ use yii\bootstrap\Modal;
 $this->title = 'Penyaluran Dana Desa ke RKUDesa';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="ldanadesa-penyaluran-rkudesa-index">
+<div class="ldanadesa-penyaluran-rkudesaesa-index">
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
     
@@ -24,7 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
     ]) ?>
 
     <?= GridView::widget([
-        'id' => 'ldanadesa-penyaluran-rkudesa',    
+        'id' => 'ldanadesa-penyaluran-rkudesaesa',    
         'dataProvider' => $dataProvider,
         'export' => false, 
         'responsive'=>true,
@@ -45,7 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
         'pjax'=>true,
         'pjaxSettings'=>[
-            'options' => ['id' => 'ldanadesa-penyaluran-rkudesa-pjax', 'timeout' => 5000],
+            'options' => ['id' => 'ldanadesa-penyaluran-rkudesaesa-pjax', 'timeout' => 5000],
         ],        
         // 'filterModel' => $searchModel,
         'columns' => [
@@ -120,12 +120,12 @@ $this->registerJs(<<<JS
         event.preventDefault();
         var href = $(this).attr('href');
         $.get(href).done(function( data ) {
-            $('#penyaluran-rkud-form').attr('action', href);
-            $('#ldanadesapenyaluranrkud-nilai').val(data.nilai);
-            $('#ldanadesapenyaluranrkud-jumlah_desa').val(data.jumlah_desa);
-            $('#salur-rkud-submit-button').removeClass('btn-success');
-            $('#salur-rkud-submit-button').addClass('btn-primary');
-            $('#salur-rkud-submit-button').html('Update');
+            $('#penyaluran-rkudesa-form').attr('action', href);
+            $('#ldanadesapenyaluranrkudesa-nilai').val(data.nilai);
+            $('#ldanadesapenyaluranrkudesa-jumlah_desa').val(data.jumlah_desa);
+            $('#salur-rkudesa-submit-button').removeClass('btn-success');
+            $('#salur-rkudesa-submit-button').addClass('btn-primary');
+            $('#salur-rkudesa-submit-button').html('Update');
         });
     } );
     $('#myModal').on("click", "a[title^='Hapus']", function(event){

@@ -48,7 +48,7 @@ $this->title = Yii::t('app', Yii::$app->name);
         <!-- ./col -->
         <div class="col-lg-3 col-xs-6">
             <!-- small box -->
-            <div class="small-box bg-green">
+            <div class="small-box bg-aqua">
                 <div class="inner">
                     <h3><?= count($skorBimtek) ?><sup style="font-size: 20px"> Pemda</sup></h3>
 
@@ -70,7 +70,7 @@ $this->title = Yii::t('app', Yii::$app->name);
         <!-- ./col -->
         <div class="col-lg-3 col-xs-6">
             <!-- small box -->
-            <div class="small-box bg-yellow">
+            <div class="small-box bg-aqua">
                 <div class="inner">
                     <h3>44</h3>
 
@@ -85,7 +85,7 @@ $this->title = Yii::t('app', Yii::$app->name);
         <!-- ./col -->
         <div class="col-lg-3 col-xs-6">
             <!-- small box -->
-            <div class="small-box bg-red">
+            <div class="small-box bg-aqua">
                 <div class="inner">
                     <h3>65</h3>
 
@@ -113,12 +113,12 @@ $this->title = Yii::t('app', Yii::$app->name);
                         'datasets' => [
                             [
                                 'label' => 'Realisasi Kegiatan APD',
-                                'backgroundColor' => "rgba(255,99,132,0.2)",
-                                'borderColor' => "rgba(255,99,132,1)",
-                                'pointBackgroundColor' => "rgba(255,99,132,1)",
+                                'backgroundColor' => "rgb(0, 194, 244)",
+                                'borderColor' => "rgb(0, 194, 244)",
+                                'pointBackgroundColor' => "rgb(0, 194, 244)",
                                 'pointBorderColor' => "#fff",
                                 'pointHoverBackgroundColor' => "#fff",
-                                'pointHoverBorderColor' => "rgba(255,99,132,1)",
+                                'pointHoverBorderColor' => "rgb(0, 194, 244)",
                                 'data' => [10, 15, 12, 10, 15, 12]
                             ]
                         ]
@@ -139,12 +139,12 @@ $this->title = Yii::t('app', Yii::$app->name);
                         'datasets' => [
                             [
                                 'label' => 'Opini WTP',
-                                'backgroundColor' => "rgba(255,99,132,0.2)",
-                                'borderColor' => "rgba(255,99,132,1)",
-                                'pointBackgroundColor' => "rgba(255,99,132,1)",
+                                'backgroundColor' => "rgb(0, 194, 244)",//"rgba(255,99,132,0.2)",
+                                'borderColor' => "rgb(0, 194, 244)",//"rgba(255,99,132,1)",
+                                'pointBackgroundColor' => "rgb(0, 194, 244)",//"rgba(255,99,132,1)",
                                 'pointBorderColor' => "#fff",
                                 'pointHoverBackgroundColor' => "#fff",
-                                'pointHoverBorderColor' => "rgba(255,99,132,1)",
+                                'pointHoverBorderColor' => "rgb(0, 194, 244)",//"rgba(255,99,132,1)",
                                 'data' => [$opiniGrafik['tahun4'], $opiniGrafik['tahun3'], $opiniGrafik['tahun2'], $opiniGrafik['tahun1'], $opiniGrafik['tahun0']]
                             ]
                         ]
@@ -174,11 +174,11 @@ $this->title = Yii::t('app', Yii::$app->name);
                         // ],
                         [
                             'label' => 'Pengguna SIMDA',
-                            'fillColor' => "rgba(151,187,205,0.5)",
-                            'strokeColor' => "rgba(151,187,205,1)",
-                            'pointColor' => "rgba(151,187,205,1)",
-                            'pointStrokeColor' => "#fff",
-                            'backgroundColor' => "#61ff74",
+                            'fillColor' => "rgb(0, 194, 244)",//"rgba(151,187,205,0.5)",
+                            'strokeColor' => "rgb(0, 194, 244)",//"rgba(151,187,205,1)",
+                            'pointColor' => "rgb(0, 194, 244)",//"rgba(151,187,205,1)",
+                            'pointStrokeColor' => "rgb(0, 194, 244)",//"#fff",
+                            'backgroundColor' => "rgb(0, 194, 244)",//"#61ff74",
                             'data' => [$simdaGrafik['pemda'], $simdaGrafik['keu'], $simdaGrafik['bmd'], $simdaGrafik['pendapatan'], $simdaGrafik['perencanaan']]
                         ]
                     ]
@@ -247,11 +247,11 @@ $this->title = Yii::t('app', Yii::$app->name);
                         // ],
                         [
                             'label' => 'Pengguna Siskeudes',
-                            'fillColor' => "rgba(151,187,205,0.5)",
-                            'strokeColor' => "rgba(151,187,205,1)",
-                            'pointColor' => "rgba(151,187,205,1)",
-                            'pointStrokeColor' => "#fff",
-                            'backgroundColor' => "#61ff74",
+                            'fillColor' => "rgb(0, 194, 244)",//"rgba(151,187,205,0.5)",
+                            'strokeColor' => "rgb(0, 194, 244)",//"rgba(151,187,205,1)",
+                            'pointColor' => "rgb(0, 194, 244)",//"rgba(151,187,205,1)",
+                            'pointStrokeColor' => "rgb(0, 194, 244)",//"#fff",
+                            'backgroundColor' => "rgb(0, 194, 244)",//"#61ff74",
                             'data' => [$siskeudesQuery['pemda'], $siskeudesQuery['siskeudes'], $siskeudesQuery['kompilasi']]
                         ]
                     ]
