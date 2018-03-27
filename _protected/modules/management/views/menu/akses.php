@@ -410,7 +410,7 @@ function akses($id, $menu){
 		<!--end of menu-->
 		<!--Menu 6 -->
 		<tr>
-			<td rowspan="3">Pelaporan</td>
+			<td rowspan="2">Pelaporan</td>
 			<td>Pelaporan Pusat</td>
 			<td>-</td>
 			<td>
@@ -432,32 +432,11 @@ function akses($id, $menu){
 			</td>
 		</tr>
 		<tr>
-			<td>Pelaporan Provinsi</td>
+			<td>Pelaporan Perwakilan</td>
 			<td>-</td>
 			<td>
 			<?php
 				$menu = 602;
-				IF(akses($model->id, $menu) === true){
-					echo Html::a('<span class = "label label-success"><i class="fa  fa-sign-in bg-white"></i></span>', ['give', 'id' => $model->id, 'menu' => $menu, 'akses' => 0 ],
-                            [  
-                             'id' => 'access-'.$menu,
-                          ]);							
-				}ELSE{
-					echo Html::a('<span class = "label label-danger"><i class="fa  fa-lock bg-white"></i></span>', ['give', 'id' => $model->id, 'menu' => $menu, 'akses' => 1 ],
-                            [  
-                             'id' => 'access-'.$menu,
-                          ]);
-				}
-
-			?>
-			</td>
-		</tr>
-		<tr>
-			<td>Pelaporan Daerah</td>
-			<td>-</td>
-			<td>
-			<?php
-				$menu = 603;
 				IF(akses($model->id, $menu) === true){
 					echo Html::a('<span class = "label label-success"><i class="fa  fa-sign-in bg-white"></i></span>', ['give', 'id' => $model->id, 'menu' => $menu, 'akses' => 0 ],
                             [  

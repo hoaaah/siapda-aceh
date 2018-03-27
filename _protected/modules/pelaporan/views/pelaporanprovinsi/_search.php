@@ -22,15 +22,22 @@ use kartik\widgets\DatePicker;
 <div class="row col-md-12">
     <div class="col-md-3">
         <?php
-
             $model->Kd_Laporan = isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) ? Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] : '';
             echo $form->field($model, 'Kd_Laporan')->widget(Select2::classname(), [
                 'data' => [
-                    // 2 => 'LRA Wilayah',               
-                    3 => 'LRA Regional Provinsi',
-                    4 => 'LRA Pemda',
-                    5 => 'Rekapitulasi Akun Eliminasi',
-                    // 6 => 'LRA Per Level Rekening',               
+                    // 1 => 'Form I - ST Kegiatan Asistensi',
+                    // 2 => 'Form II - ST KegiatanAudit',
+                    // 3 => 'Form III - ST Kegiatan Evaluasi',
+                    // 4 => 'Form IV - ST Kegiatan Lain-Lain',
+                    // 5 => 'Form A. Informasi MOU',
+                    6 => 'Lampiran VI. Informasi SPIP',
+                    // 7 => 'Lampiran VII. Informasi APIP',
+                    8 => 'Lampiran VIII. Informasi APBD',
+                    9 => 'Lampiran IX. Informasi LK',
+                    10 => 'Lampiran X. Informasi Lakip',
+                    11 => 'Lampiran XI. Informasi LPPD',
+                    12 => 'Lampiran XII. Informasi SIMDA',
+                    13 => 'Lampiran XIII. Informasi Dana Desa',     
                 ],
                 'options' => ['class' =>'form-control input-sm' ,'placeholder' => 'Pilih Jenis Laporan ...', 'id' => 'field-kd_laporan'
                 ],
@@ -38,41 +45,6 @@ use kartik\widgets\DatePicker;
                     'allowClear' => true
                 ],
             ])->label(false);
-        ?>
-    </div>
-    <div id="block-elim" style="display:<?= isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) && Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] == 5 ? 'block' : 'none' ?>;" class="col-md-4">
-        <?php 
-            if(isset(Yii::$app->request->queryParams['Laporan']['elimination_level'])){
-                $model->elimination_level = Yii::$app->request->queryParams['Laporan']['elimination_level'];             
-            }
-            $dropDownTransfer = ArrayHelper::map(\app\models\RefTransfer::find()->select(['id', 'CONCAT(id, \'. \', jenis_transfer) AS jenis_transfer'])->all(),'id','jenis_transfer');
-            echo $form->field($model, 'elimination_level')->widget(Select2::classname(), [
-                'data' => $dropDownTransfer,
-                'options' => ['id' => 'field-block-elim', 'placeholder' => 'Tingkat Eliminasi'],
-            ])->label(false);        
-        ?>
-    </div>    
-    <div id="block-wilayah" style="display:<?= (isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) && Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] == 2) || (isset(Yii::$app->request->queryParams['Laporan']['elimination_level']) && Yii::$app->request->queryParams['Laporan']['elimination_level'] == 2) ? 'block' : 'none' ?>;" class="col-md-4">
-        <?php 
-            if(isset(Yii::$app->request->queryParams['Laporan']['kd_wilayah'])){
-                $model->kd_wilayah = Yii::$app->request->queryParams['Laporan']['kd_wilayah'];             
-            }
-            $wilayah = \app\models\RefWilayah::find()->select(['id', 'CONCAT(id, \'. \', nama_wilayah) AS nama_wilayah']);
-            if(isset(Yii::$app->user->identity->pemda_id) && Yii::$app->user->identity->pemda_id != NULL && $pemda_id = Yii::$app->user->identity->pemda_id){
-                $wilayahId = \app\models\PemdaWilayah::findOne(['pemda_id' => $pemda_id]);
-                $wilayah->andWhere(['id' => $wilayahId['wilayah_id']]);
-            } 
-            $wilayah = $wilayah->all();
-            $dropDownWilayah = ArrayHelper::map($wilayah,'id','nama_wilayah');
-            echo $form->field($model, 'kd_wilayah')->widget(Select2::classname(), [
-                'data' => $dropDownWilayah,
-                'options' => ['placeholder' => 'Pilih Wilayah'],
-                'pluginOptions' => [
-                    // 'tags' => true,
-                    // 'tokenSeparators' => [',', ' '],
-                    // 'maximumInputLength' => 100
-                ],
-            ])->label(false);        
         ?>
     </div>
     <div id="block-provinsi" style="display:<?= (isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) && Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] == 3) || (isset(Yii::$app->request->queryParams['Laporan']['elimination_level']) && Yii::$app->request->queryParams['Laporan']['elimination_level'] == 1) ? 'block' : 'none' ?>;" class="col-md-4">
@@ -108,56 +80,9 @@ SQL
             ])->label(false);        
         ?>
     </div> 
-    <div style="display:<?= isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) && Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] == 4 ? 'block' : 'none' ?>;" id="block-pemda" class="col-md-4">
-        <?php 
-            if(isset(Yii::$app->request->queryParams['Laporan']['kd_pemda'])){
-                $model->kd_pemda = Yii::$app->request->queryParams['Laporan']['kd_pemda'];             
-            }
-            $dropdownPemda = \app\models\RefPemda::find()->select(['id', 'CONCAT(id, \' \', name) AS name']);
-            if(isset($pemda_id)){
-                $dropdownPemda->andWhere(['province_id' => Yii::$app->user->identity->refPemda->province_id]);
-            }
-            $dropdownPemda = $dropdownPemda->all();
-            $data = ArrayHelper::map($dropdownPemda,'id','name');
-            // $data = array_merge(['%' => 'Tampilkan Semua'], $data);
-            echo $form->field($model, 'kd_pemda')->widget(Select2::classname(), [
-                'data' => $data,
-                'options' => [
-                    'placeholder' => 'Pilih Pemda', 
-                    // 'multiple' => true
-                ],
-                // 'showToggleAll' => false,
-                'pluginOptions' => [
-                    // 'tags' => true,
-                    // 'tokenSeparators' => [',', ' '],
-                    // 'maximumInputLength' => 100
-                ],
-            ])->label(false);        
-        ?>
-    </div>
 
 </div>
-<div class="row col-md-12">   
-    <div class="col-md-2">
-        <?php
-            if(isset(Yii::$app->request->queryParams['Laporan']['periode_id'])){
-                $model->periode_id = Yii::$app->request->queryParams['Laporan']['periode_id'];             
-            }
-            $periodeList = ArrayHelper::map(\app\models\Periode::find()->select(['id', 'CONCAT(id, \'. \', name) AS name'])->all(),'id','name');
-            // $data = array_merge(['%' => 'Tampilkan Semua'], $data);
-            echo $form->field($model, 'periode_id')->widget(Select2::classname(), [
-                'data' => $periodeList,
-                'options' => [
-                    'placeholder' => 'Pilih Periode Pelaporan',
-                ],
-                'pluginOptions' => [
-                    // 'tags' => true,
-                    // 'tokenSeparators' => [',', ' '],
-                    // 'maximumInputLength' => 100
-                ],
-            ])->label(false);              
-        ?>    
-    </div>    
+<div class="row col-md-12">      
     <div class="col-md-2 pull-right">
         <?= Html::submitButton( 'Pilih', ['class' => 'btn btn-default']) ?>        
     </div>

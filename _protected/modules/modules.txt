@@ -51,8 +51,8 @@
 	11 => 
 	12 => 			
 5 => Eliminasi
-	01 => Record Eliminasi
-	02 => Data Management
+	01 => 
+	02 => 
 	03 => 
 	04 => 
 	05 => 

@@ -30,6 +30,28 @@ class PelaporanprovinsiController extends Controller
         ];
     }
 
+    // Set Tahun
+    protected function getTahun(){
+        if(Yii::$app->session->get('tahun'))
+        {
+            $tahun = Yii::$app->session->get('tahun');
+        }ELSE{
+            $tahun = DATE('Y');
+        }
+        return $tahun;
+    }
+
+    // Set Bulan
+    protected function getBulan(){
+        if(Yii::$app->session->get('bulan'))
+        {
+            $tahun = Yii::$app->session->get('bulan');
+        }ELSE{
+            $tahun = DATE('m');
+        }
+        return substr("0".$tahun, -2);
+    }   
+
     protected function getViewCompilation($model, $getParam)
     {
         switch ($getParam['kd_laporan']) {
@@ -87,13 +109,13 @@ class PelaporanprovinsiController extends Controller
         IF($this->cekakses() !== true){
             Yii::$app->getSession()->setFlash('warning',  'Anda tidak memiliki hak akses');
             return $this->redirect(Yii::$app->request->referrer);
-        }    
-        IF(Yii::$app->session->get('tahun'))
-        {
-            $Tahun = Yii::$app->session->get('tahun');
-        }ELSE{
-            $Tahun = DATE('Y');
         }
+
+        // global parameters
+        $tahun = $this->getTahun();
+        $bulan = $this->getBulan();
+        $tahunBulan = $tahun.$bulan;
+        $perwakilan_id = Yii::$app->user->identity->perwakilan_id;
 
         $get = new \app\models\Laporan();
         $Kd_Laporan = NULL;
@@ -125,84 +147,82 @@ class PelaporanprovinsiController extends Controller
             IF($getparam['Laporan']['Kd_Laporan']){
                 $Kd_Laporan = Yii::$app->request->queryParams['Laporan']['Kd_Laporan'];
                 switch ($Kd_Laporan) {
-                    case 1:
+                    case 6:
                         $totalCount = Yii::$app->db->createCommand("
-                            SELECT COUNT(a.kd_rek_1) FROM
+                            SELECT COUNT(a.id) FROM
                             (
-                                SELECT
-                                c.kd_rek_1, c.kd_rek_2, c.kd_rek_3, IFNULL(b.nm_akrual_3, '[--Rekening Tidak Terdaftar--]' )AS nm_akrual_3, SUM(c.realisasi) AS realisasi_sebelum, SUM(a.realisasi) AS realisasi_sesudah
-                                FROM
-                                (
-                                    SELECT A.*
-                                    FROM compilation_record5 A 
-                                    WHERE A.tahun = :tahun AND A.periode_id = :periode_id AND A.kd_rek_1 IN (4,5,6,7)
-                                ) c 
-                                LEFT JOIN
-                                (
-                                    SELECT A.*
-                                    FROM compilation_record5 A LEFT OUTER JOIN
-                                        (
-                                        SELECT A.tahun, A.kd_pemda, A.kd_rek_1, A.kd_rek_2, A.kd_rek_3, A.kd_rek_4, A.kd_rek_5
-                                        FROM compilation_record5 A,
-                                            elimination_account B
-                                        WHERE (B.transfer_id <= :transfer_id) AND A.tahun = :tahun AND B.tahun = :tahun AND A.periode_id = :periode_id AND 
-                                            (A.tahun = B.tahun) AND (A.kd_pemda = B.kd_pemda) AND (A.kd_rek_1 = B.kd_rek_1) AND (A.kd_rek_2 = B.kd_rek_2) AND (A.kd_rek_3 = B.kd_rek_3) 
-                                            AND ((B.kd_rek_4 = 0)
-                                            OR ((A.kd_rek_4 = B.kd_rek_4) AND (B.kd_rek_4 <> 0) AND (B.kd_rek_5 = 0))
-                                            OR ((A.kd_rek_4 = B.kd_rek_4) AND (A.kd_rek_5 = B.kd_rek_5) AND (B.kd_rek_5 <> 0)))
-                                        GROUP BY A.tahun, A.kd_pemda, A.kd_rek_1, A.kd_rek_2, A.kd_rek_3, A.kd_rek_4, A.kd_rek_5
-                                        ) B ON A.tahun = B.tahun AND A.kd_pemda = B.kd_pemda AND A.kd_rek_1 = B.kd_rek_1 AND A.kd_rek_2 = B.kd_rek_2 AND A.kd_rek_3 = B.kd_rek_3 AND A.kd_rek_4 = B.kd_rek_4 AND A.kd_rek_5 = B.kd_rek_5
-                                    WHERE (B.tahun IS NULL) AND A.tahun = :tahun AND A.periode_id = :periode_id AND A.kd_rek_1 IN (4,5,6,7)
-                                ) a ON a.tahun = c.tahun AND a.kd_provinsi = c.kd_provinsi AND a.kd_pemda = c.kd_pemda AND a.periode_id = c.periode_id AND a.perubahan_id = c.perubahan_id AND 
-                                a.kd_rek_1 = c.kd_rek_1 AND a.kd_rek_2 = c.kd_rek_2 AND a.kd_rek_3 = c.kd_rek_3 AND a.kd_rek_4 = c.kd_rek_4 AND a.kd_rek_5 = c.kd_rek_5
-                                LEFT JOIN
-                                ref_akrual_3 b ON c.kd_rek_1 = b.kd_akrual_1 AND c.kd_rek_2 = b.kd_akrual_2 AND c.kd_rek_3 = b.kd_akrual_3
-                                GROUP BY c.kd_rek_1, c.kd_rek_2, c.kd_rek_3, b.nm_akrual_3 
-                                ORDER BY c.kd_rek_1, c.kd_rek_2, c.kd_rek_3
+                                SELECT a.id, a.name, b.no_perkada, b.tanggal_perkada, b.no_sk_satgas, b.tanggal_sk, c.kat_spip, d.no_laporan, d.tgl_laporan, d.nilai_spip
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part lspips
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.no_perkada, a.tanggal_perkada, a.no_sk_satgas, a.tanggal_sk
+                                        FROM lspips a
+                                        WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspips b WHERE b.pemda_id = a.pemda_id)        
+                                    ) b ON a.id = b.pemda_id LEFT JOIN
+                                    -- part target
+                                    (
+                                        SELECT
+                                        a.pemda_id, (a.kat_spip-1) AS kat_spip
+                                        FROM lspip_target a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspip_target b WHERE b.pemda_id = a.pemda_id)        
+                                    ) c ON a.id = c.pemda_id LEFT JOIN
+                                    -- part laporan
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.no_laporan, a.tgl_laporan, a.nilai_spip, a.f1, a.f2, a.f3, a.f4, a.f5, a.f6, a.f7, a.f8, a.f9, a.f10, a.f11, a.f12, a.f13, a.f14, a.f15, a.f16, a.f17, a.f18, a.f19, a.f20, a.f21, a.f22, a.f23, a.f24, a.f25
+                                        FROM lspip_evaluasi a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspip_evaluasi b WHERE b.pemda_id = a.pemda_id)        
+                                    ) d ON a.id = d.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
                             ) a
                             ", [
-                                ':transfer_id' => 3,
+                                ':pemdaId' => '%',
                                 ':tahun' => $Tahun,
-                                ':periode_id' => $getparam['Laporan']['periode_id'],
+                                ':bulan' => $bulan,
+                                ':perwakilanId' => $perwakilan_id,
                             ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
-                                SELECT
-                                c.kd_rek_1, c.kd_rek_2, c.kd_rek_3, IFNULL(b.nm_akrual_3, '[--Rekening Tidak Terdaftar--]' )AS nm_akrual_3, SUM(c.realisasi) AS realisasi_sebelum, SUM(a.realisasi) AS realisasi_sesudah
-                                FROM
-                                (
-                                    SELECT A.*
-                                    FROM compilation_record5 A 
-                                    WHERE A.tahun = :tahun AND A.periode_id = :periode_id AND A.kd_rek_1 IN (4,5,6,7)
-                                ) c 
-                                LEFT JOIN
-                                (
-                                    SELECT A.*
-                                    FROM compilation_record5 A LEFT OUTER JOIN
-                                        (
-                                        SELECT A.tahun, A.kd_pemda, A.kd_rek_1, A.kd_rek_2, A.kd_rek_3, A.kd_rek_4, A.kd_rek_5
-                                        FROM compilation_record5 A,
-                                            elimination_account B
-                                        WHERE (B.transfer_id <= :transfer_id) AND A.tahun = :tahun AND B.tahun = :tahun AND A.periode_id = :periode_id AND 
-                                            (A.tahun = B.tahun) AND (A.kd_pemda = B.kd_pemda) AND (A.kd_rek_1 = B.kd_rek_1) AND (A.kd_rek_2 = B.kd_rek_2) AND (A.kd_rek_3 = B.kd_rek_3) 
-                                            AND ((B.kd_rek_4 = 0)
-                                            OR ((A.kd_rek_4 = B.kd_rek_4) AND (B.kd_rek_4 <> 0) AND (B.kd_rek_5 = 0))
-                                            OR ((A.kd_rek_4 = B.kd_rek_4) AND (A.kd_rek_5 = B.kd_rek_5) AND (B.kd_rek_5 <> 0)))
-                                        GROUP BY A.tahun, A.kd_pemda, A.kd_rek_1, A.kd_rek_2, A.kd_rek_3, A.kd_rek_4, A.kd_rek_5
-                                        ) B ON A.tahun = B.tahun AND A.kd_pemda = B.kd_pemda AND A.kd_rek_1 = B.kd_rek_1 AND A.kd_rek_2 = B.kd_rek_2 AND A.kd_rek_3 = B.kd_rek_3 AND A.kd_rek_4 = B.kd_rek_4 AND A.kd_rek_5 = B.kd_rek_5
-                                    WHERE (B.tahun IS NULL) AND A.tahun = :tahun AND A.periode_id = :periode_id AND A.kd_rek_1 IN (4,5,6,7)
-                                ) a ON a.tahun = c.tahun AND a.kd_provinsi = c.kd_provinsi AND a.kd_pemda = c.kd_pemda AND a.periode_id = c.periode_id AND a.perubahan_id = c.perubahan_id AND 
-                                a.kd_rek_1 = c.kd_rek_1 AND a.kd_rek_2 = c.kd_rek_2 AND a.kd_rek_3 = c.kd_rek_3 AND a.kd_rek_4 = c.kd_rek_4 AND a.kd_rek_5 = c.kd_rek_5
-                                LEFT JOIN
-                                ref_akrual_3 b ON c.kd_rek_1 = b.kd_akrual_1 AND c.kd_rek_2 = b.kd_akrual_2 AND c.kd_rek_3 = b.kd_akrual_3
-                                GROUP BY c.kd_rek_1, c.kd_rek_2, c.kd_rek_3, b.nm_akrual_3 
-                                ORDER BY c.kd_rek_1, c.kd_rek_2, c.kd_rek_3
+                                SELECT a.id, a.name, b.no_perkada, b.tanggal_perkada, b.no_sk_satgas, b.tanggal_sk, c.kat_spip, d.no_laporan, d.tgl_laporan, d.nilai_spip
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part lspips
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.no_perkada, a.tanggal_perkada, a.no_sk_satgas, a.tanggal_sk
+                                        FROM lspips a
+                                        WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspips b WHERE b.pemda_id = a.pemda_id)        
+                                    ) b ON a.id = b.pemda_id LEFT JOIN
+                                    -- part target
+                                    (
+                                        SELECT
+                                        a.pemda_id, (a.kat_spip-1) AS kat_spip
+                                        FROM lspip_target a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspip_target b WHERE b.pemda_id = a.pemda_id)        
+                                    ) c ON a.id = c.pemda_id LEFT JOIN
+                                    -- part laporan
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.no_laporan, a.tgl_laporan, a.nilai_spip, a.f1, a.f2, a.f3, a.f4, a.f5, a.f6, a.f7, a.f8, a.f9, a.f10, a.f11, a.f12, a.f13, a.f14, a.f15, a.f16, a.f17, a.f18, a.f19, a.f20, a.f21, a.f22, a.f23, a.f24, a.f25
+                                        FROM lspip_evaluasi a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspip_evaluasi b WHERE b.pemda_id = a.pemda_id)        
+                                    ) d ON a.id = d.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
                                     ",
                             'params' => [
-                                ':transfer_id' => 3,
+                                ':pemdaId' => '%',
                                 ':tahun' => $Tahun,
-                                ':periode_id' => $getparam['Laporan']['periode_id'],
+                                ':bulan' => $bulan,
+                                ':perwakilanId' => $perwakilan_id,
                             ],
                             'totalCount' => $totalCount,
                             //'sort' =>false, to remove the table header sorting
@@ -210,7 +230,7 @@ class PelaporanprovinsiController extends Controller
                                 'pageSize' => 50,
                             ],
                         ]);
-                        $render = 'laporan1';
+                        $render = 'laporan6';
                         break;
                     case 2:
                         $totalCount = Yii::$app->db->createCommand("

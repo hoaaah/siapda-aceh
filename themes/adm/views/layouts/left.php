@@ -61,17 +61,16 @@
                             // ]],
                         ],
                     ],
-                    ['label' => 'Konsolidasi', 'icon' => 'fa fa-edit', 'url' => '#', 'visible' => !Yii::$app->user->isGuest, 'items' => 
-                        [
-                            ['label' => 'Akun Eliminasi', 'icon' => 'circle-o', 'url' => ['/konsolidasi/eliminasi'], 'visible' => akses(501)],
-                            // ['label' => 'Data Monitoring', 'icon' => 'circle-o', 'url' => ['/konsolidasi/monitoring'], 'visible' => akses(502)],
-                        ],
-                    ],
+                    // ['label' => 'Konsolidasi', 'icon' => 'fa fa-edit', 'url' => '#', 'visible' => !Yii::$app->user->isGuest, 'items' => 
+                    //     [
+                    //         ['label' => 'Akun Eliminasi', 'icon' => 'circle-o', 'url' => ['/konsolidasi/eliminasi'], 'visible' => akses(501)],
+                    //         // ['label' => 'Data Monitoring', 'icon' => 'circle-o', 'url' => ['/konsolidasi/monitoring'], 'visible' => akses(502)],
+                    //     ],
+                    // ],
                     ['label' => 'Pelaporan', 'icon' => 'fa fa-edit', 'url' => '#', 'visible' => !Yii::$app->user->isGuest, 'items' => 
                         [
                             ['label' => 'Pelaporan', 'icon' => 'circle-o', 'url' => ['/pelaporan/pelaporanrekap'], 'visible' => akses(601)],
-                            ['label' => 'Pelaporan Provinsi', 'icon' => 'circle-o', 'url' => ['/pelaporan/pelaporanprovinsi'], 'visible' => akses(602)],
-                            ['label' => 'Pelaporan Pemda', 'icon' => 'circle-o', 'url' => ['/pelaporan/pelaporanpemda'], 'visible' => akses(603)],                           
+                            ['label' => 'Pelaporan Perwakilan', 'icon' => 'circle-o', 'url' => ['/pelaporan/pelaporanprovinsi'], 'visible' => akses(602)],
                         ],
                     ],
                 ],
