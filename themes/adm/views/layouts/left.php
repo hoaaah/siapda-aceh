@@ -43,6 +43,13 @@
                             ['label' => 'Data Capture', 'icon' => 'circle-o', 'url' => ['/dataentry/datacapture'], /* 'visible' => akses(205) */ ],
                             ['label' => 'Surat Tugas', 'icon' => 'circle-o', 'url' => ['/parameter/datacapture'], /* 'visible' => akses(205) */ ],
                             ['label' => 'Audit', 'icon' => 'circle-o', 'url' => ['/parameter/datacapture'], /* 'visible' => akses(205) */ ],
+                            ['label' => 'SPIP', 'icon' => 'circle-o','url' => '#', 'visible' => 309,'items'  =>
+                                [
+                                    ['label' => 'Perkada/Satgas', 'icon' => 'circle-o', 'url' => ['/dataentry/spip'] , 'visible' => akses(309)],
+                                    ['label' => 'Target', 'icon' => 'circle-o', 'url' => ['/dataentry/spiptarget'], 'visible' => akses(309)],
+                                    ['label' => 'Laporan Evaluasi', 'icon' => 'circle-o', 'url' => ['/dataentry/spipeval'], 'visible' => akses(309)],
+                                ],
+                            ], 
                             ['label' => 'Dana Desa', 'icon' => 'circle-o','url' => '#', 'visible' => 1,'items'  =>
                                 [
                                     ['label' => 'Alokasi/Realisasi Dana Desa', 'icon' => 'circle-o', 'url' => ['/dataentry/danadesa'] /*, 'visible' => akses(305)*/],

@@ -33,7 +33,7 @@
 	06 => Desa => Siskeudes (termasuk kompilasi)
 	07 => Assesment => APIP
 	08 => Assesment => SPIP
-	09 => 
+	09 => SPIP (Perkada, Target, Evaluasi)
 	10 => 
 	11 => 
 	12 => 
