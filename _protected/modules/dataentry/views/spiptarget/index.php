@@ -10,7 +10,8 @@ use yii\bootstrap\Modal;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
 
-$this->title = 'Lspip Targets';
+$this->title = 'Target SPIP Tahun '.$Tahun;
+$this->params['breadcrumbs'][] = 'SPIP';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="lspip-target-index">
@@ -18,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Tambah Lspip Target', ['create'], [
+        <?= Html::a('Tambah Target SPIP', ['create'], [
                                 'class' => 'btn btn-xs btn-success',
                                 'data-toggle'=>"modal",
                                 'data-target'=>"#myModal",
@@ -52,19 +53,10 @@ $this->params['breadcrumbs'][] = $this->title;
         // 'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
             'bulan',
-            'perwakilan_id',
-            'province_id',
-            'pemda_id',
-            // 'tahun',
-            // 'kat_spip',
-            // 'ket',
-            // 'user_id',
-            // 'created',
-            // 'updated',
-
+            'pemda.name',
+            'spip',
+            'ket',
             [
                 'class' => 'kartik\grid\ActionColumn',
                 'template' => '{view} {update} {delete}',

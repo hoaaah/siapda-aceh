@@ -2,6 +2,8 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\helpers\ArrayHelper;
+use kartik\select2\Select2;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\LspipTarget */
@@ -12,25 +14,23 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(['id' => $model->formName()]); ?>
 
-    <?= $form->field($model, 'bulan')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'pemda_id')->widget(Select2::classname(), [
+        'data' => ArrayHelper::map($pemda, 'id', 'name'),
+        'options' => ['placeholder' => 'Pemda ...'],
+        'pluginOptions' => [
+            'allowClear' => true
+        ],
+    ]); ?>        
 
-    <?= $form->field($model, 'perwakilan_id')->textInput() ?>
-
-    <?= $form->field($model, 'province_id')->textInput() ?>
-
-    <?= $form->field($model, 'pemda_id')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'tahun')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'kat_spip')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'kat_spip')->widget(Select2::classname(), [
+        'data' => $model->categorySpip(),//ArrayHelper::map($refBantuan, 'id', 'name'),
+        'options' => ['placeholder' => 'Level Target ...'],
+        'pluginOptions' => [
+            'allowClear' => true
+        ],
+    ]); ?>
 
     <?= $form->field($model, 'ket')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'user_id')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'created')->textInput() ?>
-
-    <?= $form->field($model, 'updated')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

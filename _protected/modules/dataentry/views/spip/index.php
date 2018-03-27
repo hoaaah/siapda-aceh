@@ -10,7 +10,8 @@ use yii\bootstrap\Modal;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
 
-$this->title = 'Lspips';
+$this->title = 'Perkada SPIP';
+$this->params['breadcrumbs'][] = 'SPIP';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="lspips-index">
@@ -18,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Tambah Lspips', ['create'], [
+        <?= Html::a('Tambah Data Perkada dan Satgas', ['create'], [
                                 'class' => 'btn btn-xs btn-success',
                                 'data-toggle'=>"modal",
                                 'data-target'=>"#myModal",
@@ -51,23 +52,15 @@ $this->params['breadcrumbs'][] = $this->title;
         ],        
         // 'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
+            ['class' => 'kartik\grid\SerialColumn'],
             'bulan',
-            'perwakilan_id',
-            'province_id',
-            'pemda_id',
-            // 'no_perkada',
-            // 'tanggal_perkada',
-            // 'pihak_bantu',
-            // 'ket',
-            // 'no_sk_satgas',
-            // 'tanggal_sk',
-            // 'user_id',
-            // 'created',
-            // 'updated',
-
+            'pemda.name',
+            'no_perkada',
+            'tanggal_perkada:date',
+            'no_sk_satgas',
+            'tanggal_sk:date',
+            'bantu.name',
+            'ket',
             [
                 'class' => 'kartik\grid\ActionColumn',
                 'template' => '{view} {update} {delete}',

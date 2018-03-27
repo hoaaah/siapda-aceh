@@ -3,6 +3,9 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
+use yii\behaviors\BlameableBehavior;
 
 /**
  * This is the model class for table "lspip_target".
@@ -35,7 +38,7 @@ class LspipTarget extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['bulan', 'perwakilan_id', 'province_id', 'pemda_id', 'tahun'], 'required'],
+            [['bulan',/*'perwakilan_id', 'province_id',*/ 'pemda_id', 'tahun'], 'required'],
             [['perwakilan_id', 'province_id'], 'integer'],
             [['created', 'updated'], 'safe'],
             [['bulan'], 'string', 'max' => 6],
@@ -65,5 +68,79 @@ class LspipTarget extends \yii\db\ActiveRecord
             'created' => 'Created',
             'updated' => 'Updated',
         ];
+    }
+
+    public function categorySpip(){
+        return [
+            1 => "0 Belum Ada",
+            2 => "1 Rintisan",
+            3 => '2 Intuitif',
+            4 => "3 Terdefinisi",
+            5 => "4 Terkelola dan Terukur",
+            6 => "5 Optimum",
+        ];
+    }
+
+    public function getSpip()
+    {
+        switch ($this->kat_spip) {
+            case  1:
+                return "0 Belum Ada";
+                break;
+            case  2:
+                return "1 Rintisan";
+                break;
+            case  3:
+                return "2 Intuitif";
+                break;
+            case  4:
+                return "3 Terdefinisi";
+                break;
+            case  5:
+                return "4 Terkelola dan Terukur";
+                break;
+            case  6:
+                return "5 Optimum";
+                break;
+            
+            default:
+                # code...
+                break;
+        } 
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPemda()
+    {
+        return $this->hasOne(RefPemda::className(), ['id' => 'pemda_id']);
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created',
+                'updatedAtAttribute' => 'updated',
+                'value' => new Expression('NOW()'),
+            ],
+            [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'user_id',
+                'updatedByAttribute' => 'user_id',
+            ],
+        ];
+    }
+
+    public function beforeSave($insert){		
+		if (parent::beforeSave($insert) && $this->pemda_id) {
+            $pemda = RefPemda::findOne($this->pemda_id);
+            $this->perwakilan_id = $pemda->perwakilan_id;
+            $this->province_id = $pemda->province_id;         
+            return true;
+        }
+        return false;
     }
 }

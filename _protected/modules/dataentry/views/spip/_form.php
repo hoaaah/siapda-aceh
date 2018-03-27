@@ -2,6 +2,8 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\helpers\ArrayHelper;
+use kartik\select2\Select2;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Lspips */
@@ -12,31 +14,39 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(['id' => $model->formName()]); ?>
 
-    <?= $form->field($model, 'bulan')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'perwakilan_id')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'province_id')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'pemda_id')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'pemda_id')->widget(Select2::classname(), [
+        'data' => ArrayHelper::map($pemda, 'id', 'name'),
+        'options' => ['placeholder' => 'Pemda ...'],
+        'pluginOptions' => [
+            'allowClear' => true
+        ],
+    ]); ?>    
 
     <?= $form->field($model, 'no_perkada')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'tanggal_perkada')->textInput() ?>
+    <?= $form->field($model, 'tanggal_perkada')->widget(\yii\jui\DatePicker::classname(), [
+        'language' => 'id',
+        'dateFormat' => 'yyyy-MM-dd',
+        'options' => ['class' => 'form-control', 'placeholder' => 'Tanggal Perkada']
+    ]) ?>      
 
-    <?= $form->field($model, 'pihak_bantu')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'ket')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'pihak_bantu')->widget(Select2::classname(), [
+        'data' => ArrayHelper::map($refBantuan, 'id', 'name'),
+        'options' => ['placeholder' => 'Pihak Bantu Penyusunan ...'],
+        'pluginOptions' => [
+            'allowClear' => true
+        ],
+    ]); ?>
 
     <?= $form->field($model, 'no_sk_satgas')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'tanggal_sk')->textInput() ?>
+    <?= $form->field($model, 'tanggal_sk')->widget(\yii\jui\DatePicker::classname(), [
+        'language' => 'id',
+        'dateFormat' => 'yyyy-MM-dd',
+        'options' => ['class' => 'form-control', 'placeholder' => 'Tanggal SK Satgas']
+    ]) ?>    
 
-    <?= $form->field($model, 'user_id')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'created')->textInput() ?>
-
-    <?= $form->field($model, 'updated')->textInput() ?>
+    <?= $form->field($model, 'ket')->textInput(['maxlength' => true]) ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

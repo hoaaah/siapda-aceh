@@ -3,6 +3,9 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
+use yii\behaviors\BlameableBehavior;
 
 /**
  * This is the model class for table "lspips".
@@ -40,7 +43,7 @@ class Lspips extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['bulan', 'perwakilan_id', 'province_id', 'pemda_id', 'no_perkada', 'tanggal_perkada', 'pihak_bantu'], 'required'],
+            [['bulan', /*'perwakilan_id', 'province_id',*/ 'pemda_id', 'no_perkada', 'tanggal_perkada', 'pihak_bantu'], 'required'],
             [['tanggal_perkada', 'tanggal_sk', 'created', 'updated'], 'safe'],
             [['bulan'], 'string', 'max' => 6],
             [['perwakilan_id', 'province_id'], 'string', 'max' => 2],
@@ -83,4 +86,38 @@ class Lspips extends \yii\db\ActiveRecord
     {
         return $this->hasOne(RefPemda::className(), ['id' => 'pemda_id']);
     }
+
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created',
+                'updatedAtAttribute' => 'updated',
+                'value' => new Expression('NOW()'),
+            ],
+            [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'user_id',
+                'updatedByAttribute' => 'user_id',
+            ],
+        ];
+    }
+
+    public function beforeSave($insert){		
+		if (parent::beforeSave($insert) && $this->pemda_id) {
+            $pemda = RefPemda::findOne($this->pemda_id);
+            $this->perwakilan_id = $pemda->perwakilan_id;
+            $this->province_id = $pemda->province_id;         
+            return true;
+        }
+        return false;
+    }
+
+    public function getBantu()
+    {
+        return $this->hasOne(RefBantuan::className(), ['id' => 'pihak_bantu']);
+    }
+
 }

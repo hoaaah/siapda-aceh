@@ -10,7 +10,8 @@ use yii\bootstrap\Modal;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
 
-$this->title = 'Lspip Evaluasis';
+$this->title = 'Hasil Evaluasi '.$Tahun;
+$this->params['breadcrumbs'][] = 'SPIP';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="lspip-evaluasi-index">
@@ -18,7 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Tambah Lspip Evaluasi', ['create'], [
+        <?= Html::a('Tambah Hasil Evaluasi', ['create'], [
                                 'class' => 'btn btn-xs btn-success',
                                 'data-toggle'=>"modal",
                                 'data-target'=>"#myModal",
@@ -51,47 +52,12 @@ $this->params['breadcrumbs'][] = $this->title;
         ],        
         // 'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
+            ['class' => 'kartik\grid\SerialColumn'],
             'bulan',
-            'perwakilan_id',
-            'province_id',
-            'pemda_id',
-            // 'tahun',
-            // 'no_laporan',
-            // 'tgl_laporan',
-            // 'nilai_spip',
-            // 'kat_spip',
-            // 'f1',
-            // 'f2',
-            // 'f3',
-            // 'f4',
-            // 'f5',
-            // 'f6',
-            // 'f7',
-            // 'f8',
-            // 'f9',
-            // 'f10',
-            // 'f11',
-            // 'f12',
-            // 'f13',
-            // 'f14',
-            // 'f15',
-            // 'f16',
-            // 'f17',
-            // 'f18',
-            // 'f19',
-            // 'f20',
-            // 'f21',
-            // 'f22',
-            // 'f23',
-            // 'f24',
-            // 'f25',
-            // 'ket',
-            // 'user_id',
-            // 'created',
-            // 'updated',
+            'pemda.name',
+            'spip',
+            'nilai_spip:decimal',
+            'ket',
 
             [
                 'class' => 'kartik\grid\ActionColumn',

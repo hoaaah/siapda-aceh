@@ -94,7 +94,6 @@ class LdanadesaAlokasi extends \yii\db\ActiveRecord
             return true;
         }
         return false;
-
     }
 
     public function getPendapatanDesa()
