@@ -113,6 +113,7 @@ class PelaporanprovinsiController extends Controller
 
         // global parameters
         $tahun = $this->getTahun();
+        $Tahun = $tahun;
         $bulan = $this->getBulan();
         $tahunBulan = $tahun.$bulan;
         $perwakilan_id = Yii::$app->user->identity->perwakilan_id;
@@ -183,7 +184,7 @@ class PelaporanprovinsiController extends Controller
                             ", [
                                 ':pemdaId' => '%',
                                 ':tahun' => $Tahun,
-                                ':bulan' => $bulan,
+                                ':bulan' => $tahunBulan,
                                 ':perwakilanId' => $perwakilan_id,
                             ])->queryScalar();
 
@@ -221,7 +222,7 @@ class PelaporanprovinsiController extends Controller
                             'params' => [
                                 ':pemdaId' => '%',
                                 ':tahun' => $Tahun,
-                                ':bulan' => $bulan,
+                                ':bulan' => $tahunBulan,
                                 ':perwakilanId' => $perwakilan_id,
                             ],
                             'totalCount' => $totalCount,
@@ -231,6 +232,136 @@ class PelaporanprovinsiController extends Controller
                             ],
                         ]);
                         $render = 'laporan6';
+                        break;
+                    case 8:
+                        $totalCount = Yii::$app->db->createCommand("
+                            SELECT COUNT(a.id) FROM
+                            (
+                                SELECT a.id, a.name, b.no_apbd, b.tanggal, b.total_pendapatan, b.total_belanja, b.total_pembiayaan
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part apbd
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.no_apbd, a.tanggal, a.total_pendapatan, a.total_belanja, a.total_pembiayaan, a.ket
+                                        FROM lapbds a
+                                        WHERE a.bulan <= :bulan AND a.bulan LIKE CONCAT(:tahun, '%') AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lapbds b WHERE b.pemda_id = a.pemda_id AND b.bulan LIKE CONCAT(:tahun, '%'))        
+                                    ) b ON a.id = b.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                            ) a
+                            ", [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ])->queryScalar();
+
+                        $data = new SqlDataProvider([
+                            'sql' => "
+                                SELECT a.id, a.name, b.no_apbd, b.tanggal, b.total_pendapatan, b.total_belanja, b.total_pembiayaan, b.ket
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part apbd
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.no_apbd, a.tanggal, a.total_pendapatan, a.total_belanja, a.total_pembiayaan, a.ket
+                                        FROM lapbds a
+                                        WHERE a.bulan <= :bulan AND a.bulan LIKE CONCAT(:tahun, '%') AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lapbds b WHERE b.pemda_id = a.pemda_id AND b.bulan LIKE CONCAT(:tahun, '%'))        
+                                    ) b ON a.id = b.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                                    ",
+                            'params' => [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ],
+                            'totalCount' => $totalCount,
+                            //'sort' =>false, to remove the table header sorting
+                            'pagination' => [
+                                'pageSize' => 50,
+                            ],
+                        ]);
+                        $render = 'laporan8';
+                        break;
+                    case 9:
+                        $totalCount = Yii::$app->db->createCommand("
+                            SELECT COUNT(a.id) FROM
+                            (
+                                SELECT a.id, a.name, b.tanggal, b.opini, b.pihak_bantu, b.ket, c.use_keu_pelaporan AS simda
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part opini
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.tanggal, a.opini_id, d.name AS opini, a.pihak_bantu_susun, c.name AS pihak_bantu, a.ket
+                                        FROM llkpd a
+                                        LEFT JOIN ref_bantuan c ON a.pihak_bantu_susun = c.id 
+                                        LEFT JOIN ref_opini d ON a.opini_id = d.id
+                                        WHERE a.bulan <= :bulan AND a.bulan LIKE CONCAT(:tahun, '%') AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM llkpd b WHERE b.pemda_id = a.pemda_id AND b.bulan LIKE CONCAT(:tahun, '%'))        
+                                    ) b ON a.id = b.pemda_id LEFT JOIN
+                                    -- part simda pelaporan
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.use_keu_pelaporan
+                                        FROM lsimdas a
+                                        WHERE a.bulan <= :bulan AND  a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lsimdas b WHERE b.pemda_id = a.pemda_id)        
+                                    ) c ON a.id = c.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                            ) a
+                            ", [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ])->queryScalar();
+
+                        $data = new SqlDataProvider([
+                            'sql' => "
+                                SELECT a.id, a.name, b.tanggal, b.opini, b.pihak_bantu, b.ket, IFNULL(c.use_keu_pelaporan,0) AS simda, 
+                                CASE
+                                    WHEN b.tanggal <= ':tahun-03-31' THEN 'TW'
+                                    ELSE 'TTW'
+                                END AS status
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part opini
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.tanggal, a.opini_id, d.name AS opini, a.pihak_bantu_susun, c.name AS pihak_bantu, a.ket
+                                        FROM llkpd a
+                                        LEFT JOIN ref_bantuan c ON a.pihak_bantu_susun = c.id 
+                                        LEFT JOIN ref_opini d ON a.opini_id = d.id
+                                        WHERE a.bulan <= :bulan AND a.bulan LIKE CONCAT(:tahun, '%') AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM llkpd b WHERE b.pemda_id = a.pemda_id AND b.bulan LIKE CONCAT(:tahun, '%'))        
+                                    ) b ON a.id = b.pemda_id LEFT JOIN
+                                    -- part simda pelaporan
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.use_keu_pelaporan
+                                        FROM lsimdas a
+                                        WHERE a.bulan <= :bulan AND  a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lsimdas b WHERE b.pemda_id = a.pemda_id)        
+                                    ) c ON a.id = c.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                            ",
+                            'params' => [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ],
+                            'totalCount' => $totalCount,
+                            //'sort' =>false, to remove the table header sorting
+                            'pagination' => [
+                                'pageSize' => 50,
+                            ],
+                        ]);
+                        $render = 'laporan9';
                         break;
                     case 2:
                         $totalCount = Yii::$app->db->createCommand("
@@ -516,26 +647,6 @@ class PelaporanprovinsiController extends Controller
                         # code...
                         break;
                 }
-                $totalPemda = Yii::$app->db->createCommand("
-                    SELECT COUNT(a.kd_pemda) FROM (
-                        SELECT kd_pemda
-                        FROM compilation_record5 
-                        WHERE tahun = :tahun 
-                        AND periode_id = :periode_id 
-                        AND kd_rek_1 IN (4,5,6,7) 
-                        AND kd_pemda IN (SELECT pemda_id FROM pemda_wilayah WHERE wilayah_id LIKE :wilayah_id) 
-                        AND kd_provinsi LIKE :province_id
-                        AND kd_pemda LIKE :pemda_id
-                        GROUP BY kd_pemda
-                    ) a
-                ",[
-                    ':tahun' => $Tahun,
-                    ':periode_id' => $getparam['Laporan']['periode_id'],
-                    ':wilayah_id' => $getparam['Laporan']['Kd_Laporan'] == 2 ?  $getparam['Laporan']['kd_wilayah'] : '%',
-                    ':province_id' => $getparam['Laporan']['Kd_Laporan'] == 3 ?  $getparam['Laporan']['kd_provinsi'] : '%',
-                    ':pemda_id' => $getparam['Laporan']['Kd_Laporan'] == 4 ?  $getparam['Laporan']['kd_pemda'] : '%',
-                ])->queryScalar();
-                if($getparam['Laporan']['Kd_Laporan'] == 5) $totalPemda = null;
             }
 
         }
