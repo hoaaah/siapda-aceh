@@ -25,16 +25,16 @@ $this->params['breadcrumbs'][] = $this->title;
                             $heading = 'Lampiran VII. Informasi APIP';
                             break;
                         case 8:
-                            $heading = 'Lampiran VII. Informasi APIP';
+                            $heading = 'Lampiran VII. Informasi APBD';
                             break;
                         case 9:
-                            $heading = 'Lampiran VII. Informasi APIP';
+                            $heading = 'Lampiran VII. Informasi LKPD';
                             break;
                         case 10:
-                            $heading = 'Lampiran VII. Informasi APIP';
+                            $heading = 'Lampiran VII. Informasi Lakip';
                             break;
                         case 11:
-                            $heading = 'Lampiran VII. Informasi APIP';
+                            $heading = 'Lampiran VII. Informasi LPPD';
                             break;
                         case 12:
                             $heading = 'Lampiran XII. Informasi SIMDA';
