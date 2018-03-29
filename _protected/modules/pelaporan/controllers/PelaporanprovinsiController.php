@@ -363,6 +363,160 @@ class PelaporanprovinsiController extends Controller
                         ]);
                         $render = 'laporan9';
                         break;
+                    case 12:
+                        $totalCount = Yii::$app->db->createCommand("
+                            SELECT COUNT(a.id) FROM
+                            (
+                                SELECT a.id, a.name, b.use_keu, b.use_bmd, b.use_gaji, b.use_pendapatan, b.use_perencanaan, b.use_cms, b.ket
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part simda
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.use_keu, a.use_bmd, a.use_gaji, a.use_pendapatan, a.use_perencanaan, a.use_cms, a.ket
+                                        FROM lsimdas a
+                                        WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lsimdas b WHERE b.pemda_id = a.pemda_id)        
+                                    ) b ON a.id = b.pemda_id
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                            ) a
+                            ", [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ])->queryScalar();
+
+                        $data = new SqlDataProvider([
+                            'sql' => "
+                                SELECT a.id, a.name, b.use_keu, b.use_bmd, b.use_gaji, b.use_pendapatan, b.use_perencanaan, b.use_cms, b.ket
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part simda
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.use_keu, a.use_bmd, a.use_gaji, a.use_pendapatan, a.use_perencanaan, a.use_cms, a.ket
+                                        FROM lsimdas a
+                                        WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lsimdas b WHERE b.pemda_id = a.pemda_id)        
+                                    ) b ON a.id = b.pemda_id
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                            ",
+                            'params' => [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ],
+                            'totalCount' => $totalCount,
+                            //'sort' =>false, to remove the table header sorting
+                            'pagination' => [
+                                'pageSize' => 50,
+                            ],
+                        ]);
+                        $render = 'laporan12';
+                        break;
+                    case 13:
+                        $totalCount = Yii::$app->db->createCommand("
+                            SELECT COUNT(a.id) FROM
+                            (
+                                SELECT a.id, a.name, b.jumlah_desa AS jumlah_desa_alokasi, b.nilai AS nilai_alokasi, c.jumlah_desa AS jumlah_desa_rkud, c.nilai AS nilai_rkud, d.jumlah_desa AS jumlah_desa_rkudesa, d.nilai AS nilai_rkudesa, e.jumlah_desa_implementasi, e.kompilasi
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part alokasi dana desa
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.jumlah_desa, a.nilai
+                                        FROM ldanadesa_alokasi a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND a.pendapatan_desa_id = 2 AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM ldanadesa_alokasi b WHERE b.pemda_id = a.pemda_id AND b.tahun = :tahun AND b.pendapatan_desa_id = 2)        
+                                    ) b ON a.id = b.pemda_id LEFT JOIN
+                                    -- part penyaluran ke RKUD
+                                    (
+                                        SELECT
+                                        a.pemda_id, SUM(a.jumlah_desa) AS jumlah_desa, SUM(a.nilai) AS nilai
+                                        FROM ldanadesa_penyaluran_rkud a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND a.pendapatan_desa_id = 2   
+                                        GROUP BY a.pemda_id  
+                                    ) c ON a.id = c.pemda_id LEFT JOIN
+                                    -- part penyaluran ke RKUD
+                                    (
+                                        SELECT
+                                        a.pemda_id, SUM(a.jumlah_desa) AS jumlah_desa, SUM(a.nilai) AS nilai
+                                        FROM ldanadesa_penyaluran_rkudesa a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND a.pendapatan_desa_id = 2   
+                                        GROUP BY a.pemda_id  
+                                    ) d ON a.id = d.pemda_id LEFT JOIN
+                                    -- part siskeudes
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.jumlah_desa_implementasi, a.kompilasi
+                                        FROM ldanadesa_siskeudes a
+                                        WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId  AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM ldanadesa_siskeudes b WHERE b.pemda_id = a.pemda_id)        
+                                    ) e ON a.id = e.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                            ) a
+                            ", [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ])->queryScalar();
+
+                        $data = new SqlDataProvider([
+                            'sql' => "
+                                SELECT a.id, a.name, b.jumlah_desa AS jumlah_desa_alokasi, b.nilai AS nilai_alokasi, c.jumlah_desa AS jumlah_desa_rkud, c.nilai AS nilai_rkud, d.jumlah_desa AS jumlah_desa_rkudesa, d.nilai AS nilai_rkudesa, e.jumlah_desa_implementasi, e.kompilasi
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part alokasi dana desa
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.jumlah_desa, a.nilai
+                                        FROM ldanadesa_alokasi a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND a.pendapatan_desa_id = 2 AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM ldanadesa_alokasi b WHERE b.pemda_id = a.pemda_id AND b.tahun = :tahun AND b.pendapatan_desa_id = 2)        
+                                    ) b ON a.id = b.pemda_id LEFT JOIN
+                                    -- part penyaluran ke RKUD
+                                    (
+                                        SELECT
+                                        a.pemda_id, SUM(a.jumlah_desa) AS jumlah_desa, SUM(a.nilai) AS nilai
+                                        FROM ldanadesa_penyaluran_rkud a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND a.pendapatan_desa_id = 2   
+                                        GROUP BY a.pemda_id  
+                                    ) c ON a.id = c.pemda_id LEFT JOIN
+                                    -- part penyaluran ke RKUD
+                                    (
+                                        SELECT
+                                        a.pemda_id, SUM(a.jumlah_desa) AS jumlah_desa, SUM(a.nilai) AS nilai
+                                        FROM ldanadesa_penyaluran_rkudesa a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND a.pendapatan_desa_id = 2   
+                                        GROUP BY a.pemda_id  
+                                    ) d ON a.id = d.pemda_id LEFT JOIN
+                                    -- part siskeudes
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.jumlah_desa_implementasi, a.kompilasi
+                                        FROM ldanadesa_siskeudes a
+                                        WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId  AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM ldanadesa_siskeudes b WHERE b.pemda_id = a.pemda_id)        
+                                    ) e ON a.id = e.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                            ",
+                            'params' => [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ],
+                            'totalCount' => $totalCount,
+                            //'sort' =>false, to remove the table header sorting
+                            'pagination' => [
+                                'pageSize' => 50,
+                            ],
+                        ]);
+                        $render = 'laporan13';
+                        break;
                     case 2:
                         $totalCount = Yii::$app->db->createCommand("
                             SELECT COUNT(a.kd_rek_1) FROM

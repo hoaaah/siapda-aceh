@@ -92,34 +92,67 @@ use yii\web\Controller;
                 // 'groupEvenCssClass'=>'kv-grouped-row', // configure even group cell css class
             ],
             [
-                'label' => 'Tanggal Penyampaian',
-                'format' => 'date',
+                'label' => 'Keuangan',
+                'format' => 'raw',
                 'value' => function($model){
-                    return $model['tanggal'];
+                    if($model['use_keu'] == 1) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
                 }
             ],
             [
-                'label' => 'Kategori',
-                'value' => function($model) use($tahun){
-                    if($model['tanggal']) return $model['status'];
+                'label' => 'BMD',
+                'format' => 'raw',
+                'value' => function($model){
+                    if($model['use_bmd'] == 1) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
                 }
             ],
             [
-                'label' => 'Pihak Membantu Penyusunan',
+                'label' => 'Pendapatan',
+                'format' => 'raw',
                 'value' => function($model){
-                    return $model['pihak_bantu'];
+                    if($model['use_pendapatan'] == 1) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
                 }
             ],
             [
-                'label' => 'Opini',
+                'label' => 'Gaji',
+                'format' => 'raw',
                 'value' => function($model){
-                    return $model['opini'];
+                    if($model['use_gaji'] == 1) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
                 }
             ],
             [
-                'label' => 'SIMDA',
+                'label' => 'Perencanaan',
+                'format' => 'raw',
                 'value' => function($model){
-                    return $model['simda'];
+                    if($model['use_perencanaan'] == 1) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
+                }
+            ],
+            [
+                'label' => 'Pengguna SIMDA',
+                'format' => 'raw',
+                'value' => function($model){
+                    if( in_array(1, [$model['use_keu'], $model['use_bmd'], $model['use_gaji'], $model['use_pendapatan'], $model['use_perencanaan'] ]) ) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
+                }
+            ],
+            [
+                'label' => 'CMS Online',
+                'format' => 'raw',
+                'value' => function($model){
+                    if($model['use_cms'] == 1) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
+                }
+            ],
+            [
+                'label' => 'Koneksi Taspen',
+                'format' => 'raw',
+                'value' => function($model){
+                    // if($model['use_keu'] == 1) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
                 }
             ],
             'ket'

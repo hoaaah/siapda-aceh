@@ -92,37 +92,58 @@ use yii\web\Controller;
                 // 'groupEvenCssClass'=>'kv-grouped-row', // configure even group cell css class
             ],
             [
-                'label' => 'Tanggal Penyampaian',
-                'format' => 'date',
+                'label' => 'Alokasi Jumlah Desa',
                 'value' => function($model){
-                    return $model['tanggal'];
+                    $model['jumlah_desa_alokasi'];
                 }
             ],
             [
-                'label' => 'Kategori',
-                'value' => function($model) use($tahun){
-                    if($model['tanggal']) return $model['status'];
+                'label' => 'Alokasi Nilai',
+                'format' => 'decimal',
+                'value' => function($model){
+                    $model['nilai_alokasi'];
                 }
             ],
             [
-                'label' => 'Pihak Membantu Penyusunan',
+                'label' => 'Jumlah Desa Disalurkan ke RKUD',
                 'value' => function($model){
-                    return $model['pihak_bantu'];
+                    $model['jumlah_desa_rkud'];
                 }
             ],
             [
-                'label' => 'Opini',
+                'label' => 'Nilai Disalurkan ke RKUD',
+                'format' => 'decimal',
                 'value' => function($model){
-                    return $model['opini'];
+                    $model['nilai_rkud'];
                 }
             ],
             [
-                'label' => 'SIMDA',
+                'label' => 'Jumlah Desa Disalurkan ke RKUDesa',
                 'value' => function($model){
-                    return $model['simda'];
+                    $model['jumlah_desa_rkudesa'];
                 }
             ],
-            'ket'
+            [
+                'label' => 'Nilai Disalurkan ke RKUDesa',
+                'format' => 'decimal',
+                'value' => function($model){
+                    $model['nilai_rkudesa'];
+                }
+            ],
+            [
+                'label' => 'Siskeudes',
+                'value' => function($model){
+                    $model['jumlah_desa_implementasi'];
+                }
+            ],
+            [
+                'label' => 'Kompilasi dgn Siskeudes',
+                'format' => 'raw',
+                'value' => function($model){
+                    if($model['kompilasi'] == 1) return '<span class="label label-success"><i class="glyphicon glyphicon-ok"> 1</i></span>';
+                    return '<span class="label label-danger"><i class="glyphicon glyphicon-remove"></i></span>';
+                }
+            ],
         ],
     ]); 
 ?>
