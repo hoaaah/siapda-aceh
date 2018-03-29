@@ -53,7 +53,18 @@ $tahunArray = [$tahunTerpilih => $tahunTerpilih, ($tahunTerpilih-1) => ($tahunTe
                 'autoGroup' => true,
                 'removeMaskOnSubmit' => true,
             ],
-    ]) ?>            
+    ]) ?>    
+
+    <?= $form->field($model, 'nilai_iacm', ['enableClientValidation' => false])->widget(MaskedInput::classname(), [
+            'clientOptions' => [
+                'alias' =>  'decimal',
+                // 'groupSeparator' => ',',
+                'groupSeparator' => '.',
+                'radixPoint'=>',',                
+                'autoGroup' => true,
+                'removeMaskOnSubmit' => true,
+            ],
+    ]) ?>                
 
     <?php // $form->field($model, 'kat_spip')->textInput(['maxlength' => true]) ?>
 
