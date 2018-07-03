@@ -111,8 +111,11 @@ class SkorPemda extends Model
     {
         if($kdTampil === 1){
             $operatorTampil = '< 7';
-        }else{
+        }elseif($kdTampil === 2)
+        {
             $operatorTampil = '>= 7';
+        }else{
+            $operatorTampil = "LIKE '%'";
         }
         $query = Yii::$app->db->createCommand("
             SELECT a.id, a.name, a.opini, a.sakip, a.lppd, a.spip, a.kasus, a.pilkada, 
