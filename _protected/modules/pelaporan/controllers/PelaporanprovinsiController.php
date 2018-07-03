@@ -518,6 +518,8 @@ class PelaporanprovinsiController extends Controller
                         $render = 'laporan13';
                         break;
                     case 14:
+
+                        // Change this with model query asap
                         $totalCount = Yii::$app->db->createCommand("
                             SELECT COUNT(a.id) FROM
                             (
