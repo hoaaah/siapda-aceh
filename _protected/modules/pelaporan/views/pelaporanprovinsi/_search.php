@@ -37,7 +37,8 @@ use kartik\widgets\DatePicker;
                     10 => 'Lampiran X. Informasi Lakip',
                     11 => 'Lampiran XI. Informasi LPPD',
                     12 => 'Lampiran XII. Informasi SIMDA',
-                    13 => 'Lampiran XIII. Informasi Dana Desa',     
+                    13 => 'Lampiran XIII. Informasi Dana Desa',    
+                    14 => 'Rekapitulasi Skoring Pemda' 
                 ],
                 'options' => ['class' =>'form-control input-sm' ,'placeholder' => 'Pilih Jenis Laporan ...', 'id' => 'field-kd_laporan'
                 ],

@@ -42,6 +42,9 @@ $this->params['breadcrumbs'][] = $this->title;
                         case 13:
                             $heading = 'Lampiran XII. Informasi Dana Desa';
                             break;
+                        case 14:
+                            $heading = 'Rekapitulasi Skoring Pemda';
+                            break;
 	                    default:
 	                        # code...
 	                        break;
