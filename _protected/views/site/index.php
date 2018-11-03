@@ -3,7 +3,11 @@ use dosamigos\chartjs\ChartJs;
 use yii\widgets\ListView;
 use yii\helpers\Html;
 use yii\bootstrap\Modal;
+// use miloschuman\highcharts\Highmaps;
+// use yii\web\JsExpression;
 /* @var $this yii\web\View */
+
+$this->title = Yii::t('app', Yii::$app->name);
 
 function angka($n) {
     // first strip any formatting;
@@ -20,7 +24,71 @@ function angka($n) {
     
     return number_format($n);
 }
-$this->title = Yii::t('app', Yii::$app->name);
+
+$kabkotJsUrl = \yii\helpers\Url::to(['/images/id-kabkot.js'], true);
+?>
+<script src="https://code.highcharts.com/maps/highmaps.js"></script>
+<script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+<script src="<?= $kabkotJsUrl ?>"></script>
+<!-- <script src="https://code.highcharts.com/mapdata/countries/id/id-all.js"></script> -->
+<?php
+
+//  // To use Highcharts Map Collection, we must register those files separately.
+//  // The 'depends' option ensures that the main Highmaps script gets loaded first.
+// $this->registerJsFile('http://code.highcharts.com/mapdata/countries/de/de-all.js', [
+//     'depends' => 'miloschuman\highcharts\HighchartsAsset'
+// ]);
+
+// echo Highmaps::widget([
+//     'options' => [
+//         'title' => [
+//             'text' => 'Highmaps basic demo',
+//         ],
+//         'mapNavigation' => [
+//             'enabled' => true,
+//             'buttonOptions' => [
+//                 'verticalAlign' => 'bottom',
+//             ]
+//         ],
+//         'colorAxis' => [
+//             'min' => 0,
+//         ],
+//         'series' => [
+//             [
+//                 'data' => [
+//                     ['hc-key' => 'de-ni', 'value' => 0],
+//                     ['hc-key' => 'de-hb', 'value' => 1],
+//                     ['hc-key' => 'de-sh', 'value' => 2],
+//                     ['hc-key' => 'de-be', 'value' => 3],
+//                     ['hc-key' => 'de-mv', 'value' => 4],
+//                     ['hc-key' => 'de-hh', 'value' => 5],
+//                     ['hc-key' => 'de-rp', 'value' => 6],
+//                     ['hc-key' => 'de-sl', 'value' => 7],
+//                     ['hc-key' => 'de-by', 'value' => 8],
+//                     ['hc-key' => 'de-th', 'value' => 9],
+//                     ['hc-key' => 'de-st', 'value' => 10],
+//                     ['hc-key' => 'de-sn', 'value' => 11],
+//                     ['hc-key' => 'de-br', 'value' => 12],
+//                     ['hc-key' => 'de-nw', 'value' => 13],
+//                     ['hc-key' => 'de-bw', 'value' => 14],
+//                     ['hc-key' => 'de-he', 'value' => 15],
+//                 ],
+//                 'mapData' => new JsExpression('Highcharts.maps["countries/de/de-all"]'),
+//                 'joinBy' => 'hc-key',
+//                 'name' => 'Random data',
+//                 'states' => [
+//                     'hover' => [
+//                         'color' => '#BADA55',
+//                     ]
+//                 ],
+//                 'dataLabels' => [
+//                     'enabled' => true,
+//                     'format' => '{point.name}',
+//                 ]
+//             ]
+//         ]
+//     ]
+// ]);
 ?>
 <div class="site-index">
     <div class="row">
@@ -99,6 +167,11 @@ $this->title = Yii::t('app', Yii::$app->name);
         </div>
         <!-- ./col -->
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="peta"></div>
+        </div>
+    </div class="row">
     <div class="row well">
         <div class="col-lg-3 col-xs-6">
             <?php
@@ -397,6 +470,61 @@ $this->registerJs(<<<JS
                 modal.find('.modal-body').html(data)
             });
         })
+
+JS
+);
+
+$data = json_encode($simdaKeuGeometryData);
+// echo $data;
+$this->registerJs(<<<JS
+// Prepare demo data
+// Data is joined to map using value of 'hc-key' property by default.
+// See API docs for 'joinBy' for more info on linking data and map.
+
+var data = $data;
+
+// Create the chart
+Highcharts.mapChart('peta', {
+    chart: {
+        map: 'countries/id/id-kabkot'
+        // map: 'countries/id/id-all'
+    },
+
+    title: {
+        text: 'Pengguna Simda Keuangan'
+    },
+
+    subtitle: {
+        text: 'Source map: <a href="$kabkotJsUrl">Indonesia</a>'
+        // text: 'Source map: <a href="http://code.highcharts.com/mapdata/countries/id/id-all.js">Indonesia</a>'
+    },
+
+    mapNavigation: {
+        enabled: true,
+        buttonOptions: {
+            verticalAlign: 'bottom'
+        }
+    },
+
+    colorAxis: {
+        min: 0
+    },
+
+    series: [{
+        data: data,
+        name: 'Simda Keuangan',
+        states: {
+            hover: {
+                color: '#BADA55'
+            }
+        },
+        dataLabels: {
+            enabled: false,
+            format: '{point.name}'
+        }
+    }]
+});
+
 JS
 );
 ?>

@@ -17,6 +17,7 @@ use yii\filters\AccessControl;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
+use yii\helpers\ArrayHelper;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk DJPK Kemenkeu.*/
 
@@ -118,6 +119,36 @@ class SiteController extends Controller
 //------------------------------------------------------------------------------------------------//
 // STATIC PAGES
 //------------------------------------------------------------------------------------------------//
+
+    public function actionCoba(){
+
+        $client = new \yii\httpclient\Client();
+        $response = $client->createRequest()
+            ->setMethod('GET')
+            ->setUrl('http://localhost:8000/siapda-aceh/id-kabkot.json')
+            // ->setData(['name' => 'John Doe', 'email' => 'johndoe@example.com'])
+            ->send();
+        if ($response->isOk) {
+            $data = $response->data;
+        }        
+        
+        // return var_dump($data['features'][122]['geometry']['coordinates'][0]);
+
+        $model = $data['features'];
+        $dataProvider = new \yii\data\ArrayDataProvider([
+            'allModels' => $model,
+            'pagination' => [
+            'pageSize' => 100,
+        ],
+            'sort' => [
+                'attributes' => ['id'],
+            ],
+        ]);
+
+        return $this->render('coba',[
+            'dataProvider' => $dataProvider
+        ]);        
+    }
 
     public function actionIndex()
     {
@@ -267,6 +298,40 @@ class SiteController extends Controller
             ':tahunBulan' => $tahunBulan,
         ])->queryOne();
 
+        $simdaKeuGeometryDataQuery = Yii::$app->db->createCommand("
+            SELECT
+            CONCAT(c.id, ', ', IFNULL(b.keu,0)) AS data,
+            c.id AS geometry_id, IFNULL(b.keu,0) AS keu
+            FROM
+            (
+                SELECT * FROM ref_pemda
+                WHERE id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+            )a LEFT JOIN
+            (
+                SELECT pemda_id, use_keu AS keu
+                FROM lsimdas
+                WHERE bulan LIKE CONCAT(:tahun ,'%') AND bulan <= :tahunBulan AND use_keu = 1 AND pemda_id LIKE :pemdaId AND perwakilan_id LIKE :perwakilanId
+                GROUP BY pemda_id
+            ) b ON a.id = b.pemda_id
+            LEFT JOIN ref_pemda_geometry c ON a.id = c.pemda_id
+            WHERE c.id IS NOT NULL 
+            -- AND b.keu = 1
+        ")->bindValues([
+            ':tahun' => $tahun,
+            ':perwakilanId' => $perwakilanId,
+            ':pemdaId' => '%',
+            ':tahunBulan' => $tahunBulan,
+        ])->queryAll();
+
+        // $simdaKeuGeometryData = ArrayHelper::map($simdaKeuGeometryDataQuery, 'geometry_id', 'keu');
+        
+        $simdaKeuGeometryData = [];
+        foreach($simdaKeuGeometryDataQuery AS $data){
+            $simdaKeuGeometryData[] = [$data['geometry_id'], (int) $data['keu']];
+        }
+
+        // return var_dump($simdaKeuGeometryData);
+
         return $this->render('index',[
             'tahun' => $tahun,
             'dataProvider' => $dataProvider,
@@ -275,6 +340,7 @@ class SiteController extends Controller
             'opiniGrafik' => $opiniQuery,
             'simdaGrafik' => $simdaQuery,
             'siskeudesQuery' => $siskeudesQuery,
+            'simdaKeuGeometryData' => $simdaKeuGeometryData,
         ]);
         
     }
