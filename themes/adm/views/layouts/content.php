@@ -41,7 +41,7 @@ use dmstr\widgets\Alert;
         <b>Version</b> 1.0.0
     </div>
     <?php 
-        echo '<strong>Copyright &copy; 2018 <a href="https://belajararief.com">Heru Arief Wijaya @bpkp-aceh-apd2</a></strong>';
+        echo '<strong>Copyright &copy; 2018 <a href="https://belajararief.com">hoaaah @bpkp-aceh-apd2</a></strong>';
     ?>
 
 </footer>
