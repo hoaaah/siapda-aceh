@@ -48,8 +48,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'raw'
             ],
             [
-                'attribute' => 'kd_sub',
-                'value' => $model['refPemda']['name']
+                'attribute' => 'perwakilan_id',
+                'value' => $model['refPerwakilan']['name']
             ],
             //'auth_key',
             //'password_reset_token',
