@@ -29,7 +29,7 @@ use kartik\widgets\DatePicker;
                     // 2 => 'Form II - ST KegiatanAudit',
                     // 3 => 'Form III - ST Kegiatan Evaluasi',
                     // 4 => 'Form IV - ST Kegiatan Lain-Lain',
-                    // 5 => 'Form A. Informasi MOU',
+                    5 => 'Form A. Informasi MOU',
                     6 => 'Lampiran VI. Informasi SPIP',
                     // 7 => 'Lampiran VII. Informasi APIP',
                     8 => 'Lampiran VIII. Informasi APBD',

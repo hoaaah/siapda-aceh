@@ -18,6 +18,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
 				<?php 
 	                switch ($Kd_Laporan) {
+                        case 5:
+                            $heading = 'Laporan Rekapitulasi MOU Pemda';
+                            break;
                         case 6:
                             $heading = 'Lampiran VI. Informasi SPIP';
                             break;

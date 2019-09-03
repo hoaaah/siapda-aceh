@@ -148,6 +148,77 @@ class PelaporanprovinsiController extends Controller
             IF($getparam['Laporan']['Kd_Laporan']){
                 $Kd_Laporan = Yii::$app->request->queryParams['Laporan']['Kd_Laporan'];
                 switch ($Kd_Laporan) {
+                    case 5:
+                        $totalCount = Yii::$app->db->createCommand("
+                            SELECT COUNT(a.id) FROM
+                            (
+                                SELECT a.id, a.name, b.no_perkada, b.tanggal_perkada, b.no_sk_satgas, b.tanggal_sk, c.kat_spip, d.no_laporan, d.tgl_laporan, d.nilai_spip
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part lspips
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.no_perkada, a.tanggal_perkada, a.no_sk_satgas, a.tanggal_sk
+                                        FROM lspips a
+                                        WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspips b WHERE b.pemda_id = a.pemda_id)        
+                                    ) b ON a.id = b.pemda_id LEFT JOIN
+                                    -- part target
+                                    (
+                                        SELECT
+                                        a.pemda_id, (a.kat_spip-1) AS kat_spip
+                                        FROM lspip_target a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspip_target b WHERE b.pemda_id = a.pemda_id)        
+                                    ) c ON a.id = c.pemda_id LEFT JOIN
+                                    -- part laporan
+                                    (
+                                        SELECT
+                                        a.pemda_id, a.no_laporan, a.tgl_laporan, a.nilai_spip, a.f1, a.f2, a.f3, a.f4, a.f5, a.f6, a.f7, a.f8, a.f9, a.f10, a.f11, a.f12, a.f13, a.f14, a.f15, a.f16, a.f17, a.f18, a.f19, a.f20, a.f21, a.f22, a.f23, a.f24, a.f25
+                                        FROM lspip_evaluasi a
+                                        WHERE a.bulan <= :bulan AND a.tahun = :tahun AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lspip_evaluasi b WHERE b.pemda_id = a.pemda_id)        
+                                    ) d ON a.id = d.pemda_id 
+                                WHERE a.id LIKE :pemdaId AND a.perwakilan_id LIKE :perwakilanId
+                                ORDER BY a.id
+                            ) a
+                            ", [
+                                ':pemdaId' => '%',
+                                ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ])->queryScalar();
+
+                        $data = new SqlDataProvider([
+                            'sql' => "
+                                SELECT a.id, a.name, b.no_mou,
+                                b.no_mou_pemda, b.tanggal_mou, b.judul, b.ruang_lingkup, b.tanggal_berlaku AS expire
+                                FROM ref_pemda a LEFT JOIN
+                                    -- part lspips
+                                    (
+                                        SELECT
+                                        *
+                                        FROM lmou a
+                                        WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
+                                        a.bulan = (SELECT MAX(b.bulan) FROM lmou b WHERE b.pemda_id = a.pemda_id)
+                                    ) b ON a.id = b.pemda_id
+                                WHERE a.id LIKE '%' AND a.perwakilan_id LIKE 1
+                                ORDER BY a.id
+                                    ",
+                            'params' => [
+                                ':pemdaId' => '%',
+                                // ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ],
+                            'totalCount' => $totalCount,
+                            //'sort' =>false, to remove the table header sorting
+                            'pagination' => [
+                                'pageSize' => 50,
+                            ],
+                        ]);
+                        $render = 'laporan5';
+                        break;
+                   
                     case 6:
                         $totalCount = Yii::$app->db->createCommand("
                             SELECT COUNT(a.id) FROM
