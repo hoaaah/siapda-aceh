@@ -106,7 +106,7 @@ use yii\web\Controller;
                 'label' => 'tgl_mou',
                 // 'width'=>'20%',
                 'value' =>function($model){
-                    return $model['tanggal_mou']." s.d. ".$model['expire'];
+                    return date('d-m-Y', strtotime($model['tanggal_mou']))." s.d. ".date('d-m-Y', strtotime($model['expire']));
                 },
                 // 'group'=>true,  // enable grouping,
                 // 'groupedRow'=>true,                    // move grouped column to a single grouped row
