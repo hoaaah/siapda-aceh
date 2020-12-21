@@ -19,7 +19,7 @@ if (!$model->isNewRecord) {
     <?php $form = ActiveForm::begin(['id' => $model->formName()]); ?>
 
     <?= $form->field($model, 'kode_pemda_gabung')->widget(Select2::class, [
-        'data' => $model->pemdaArrayList(),
+        'data' => $model->pemdaArrayList($model->perwakilan_id),
         'options' => ['placeholder' => 'Pemda ...'],
         'pluginOptions' => [
             'allowClear' => true
