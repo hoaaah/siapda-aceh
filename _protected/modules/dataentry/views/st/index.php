@@ -127,5 +127,6 @@ $this->registerJs(<<<JS
                 modal.find('.modal-body').html(data)
             });
         })
-JS);
+JS
+);
 ?>

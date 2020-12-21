@@ -86,5 +86,6 @@ if (!$model->isNewRecord) {
             });
         return false;
     });
-JS);
+JS
+);
 ?>
