@@ -70,7 +70,7 @@ class StController extends Controller
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'Tahun' => $this->getTahun(),
+            'Tahun' => $this->getTahun()
         ]);
     }
 
