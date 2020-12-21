@@ -1,7 +1,14 @@
 {
     "name": "hoaaah/econsole",
     "description": "Aplikasi Oye!",
-    "keywords": ["yii2", "econsole", "djpk", "kemkeu", "keuangan", "hoaaah"],
+    "keywords": [
+        "yii2",
+        "econsole",
+        "djpk",
+        "kemkeu",
+        "keuangan",
+        "hoaaah"
+    ],
     "type": "project",
     "support": {
         "tutorial": "http://www.belajararief.com",
@@ -32,9 +39,8 @@
         "2amigos/yii2-ckeditor-widget": "^2.0",
         "kartik-v/yii2-export": "*",
         "2amigos/yii2-table-export-widget": "*",
-        "2amigos/yii2-exportable-widget" : "^2.0",
+        "2amigos/yii2-exportable-widget": "^2.0",
         "daixianceng/yii2-echarts": "*",
-        "miloschuman/yii2-highcharts-widget": "^6.0",
         "yiisoft/yii2-httpclient": "*"
     },
     "require-dev": {
@@ -49,11 +55,8 @@
     "config": {
         "vendor-dir": "_protected/vendor",
         "process-timeout": 1800,
-        "fxp-asset":{
-            "installer-paths": {
-                "npm-asset-library": "_protected/vendor/npm",
-                "bower-asset-library": "_protected/vendor/bower"
-            }
+        "fxp-asset": {
+            "enabled": false
         }
     },
     "scripts": {
@@ -77,5 +80,11 @@
                 "_protected/config/web.php"
             ]
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ]
 }

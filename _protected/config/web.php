@@ -6,13 +6,13 @@ $params = require(__DIR__ . '/params.php');
 
 $config = [
     'id' => 's1APD4',
-    'name' => 'SIAPDa-Aceh',
+    'name' => 'SIAPDa',
     'language' => 'id',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log', 'app\components\Aliases'],    
+    'bootstrap' => ['log', 'app\components\Aliases'],
     'modules' => [
         'gridview' => [
-          'class' => '\kartik\grid\Module',
+            'class' => '\kartik\grid\Module',
         ],
         'globalsetting' => [
             'class' => 'app\modules\globalsetting\globalsetting',
@@ -25,14 +25,14 @@ $config = [
         ],
         'konsolidasi' => [
             'class' => 'app\modules\konsolidasi\Konsolidasi',
-        ],   
+        ],
         'pelaporan' => [
             'class' => 'app\modules\pelaporan\pelaporan',
         ],
         'dataentry' => [
             'class' => 'app\modules\dataentry\Dataentry',
-        ],             
-    ],     
+        ],
+    ],
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -44,7 +44,7 @@ $config = [
             'theme' => [
                 'pathMap' => ['@app/views' => '@webroot/themes/adm/views'],
                 'baseUrl' => '@web/themes/adm',
-            ],      
+            ],
         ],
         'assetManager' => [
             'bundles' => [
@@ -66,7 +66,7 @@ $config = [
                 "skin-purple-light",
                 "skin-green-light"
                 */
-                'dmstr\web\AdminLteAsset' => ['skin' => 'skin-purple',],                
+                'dmstr\web\AdminLteAsset' => ['skin' => 'skin-purple',],
             ],
         ],
         'cache' => [
@@ -86,7 +86,7 @@ $config = [
             'identityCookie' => [
                 'name' => '_econsolenUser', // unique for backend
                 // 'path'=>'/backend/web'  // correct path for the backend app.
-            ]                 
+            ]
         ],
         'session' => [
             'name' => '_econsoleSessionId', // unique for backend
@@ -139,7 +139,7 @@ $config = [
     ],
     // this class use for force login to all controller. Usefull quiet enough
     // this function work only in login placed in site controller. FOr other login controller/action, change denyCallback access
-	'as beforeRequest' => [
+    'as beforeRequest' => [
         'class' => 'yii\filters\AccessControl',
         'rules' => [
             [
@@ -154,7 +154,7 @@ $config = [
         'denyCallback' => function () {
             return Yii::$app->response->redirect(['site/login']);
         },
-    ],    
+    ],
     'params' => $params,
 ];
 
@@ -165,7 +165,7 @@ if (YII_ENV_DEV) {
         'class' => 'yii\debug\Module',
         'panels' => [
             'user' => [
-                'class'=>'yii\debug\panels\UserPanel',
+                'class' => 'yii\debug\panels\UserPanel',
                 'ruleUserSwitch' => [
                     'allow' => true,
                     'roles' => ['@'],
@@ -186,7 +186,7 @@ if (YII_ENV_DEV) {
                 'templates' => ['modalcrud' => '@app/templates/modalcrud']
             ]
         ]
-    ];    
+    ];
 }
 
 return $config;
