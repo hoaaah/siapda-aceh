@@ -145,5 +145,6 @@ $this->registerJs(<<<JS
                 // code block
         }
     })    
-JS);
+JS
+);
 ?>
