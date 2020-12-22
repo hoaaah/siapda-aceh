@@ -17,43 +17,42 @@ use kartik\widgets\DatePicker;
     'method' => 'get',
 ]); ?>
 <div class="col-md-12">
-<div class="box box-primary">
-<div class="box-body">
-<div class="row col-md-12">
-    <div class="col-md-3">
-        <?php
-            $model->Kd_Laporan = isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) ? Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] : '';
-            echo $form->field($model, 'Kd_Laporan')->widget(Select2::classname(), [
-                'data' => [
-                    // 1 => 'Form I - ST Kegiatan Asistensi',
-                    // 2 => 'Form II - ST KegiatanAudit',
-                    // 3 => 'Form III - ST Kegiatan Evaluasi',
-                    // 4 => 'Form IV - ST Kegiatan Lain-Lain',
-                    5 => 'Form A. Informasi MOU',
-                    6 => 'Lampiran VI. Informasi SPIP',
-                    // 7 => 'Lampiran VII. Informasi APIP',
-                    8 => 'Lampiran VIII. Informasi APBD',
-                    9 => 'Lampiran IX. Informasi LK',
-                    10 => 'Lampiran X. Informasi Lakip',
-                    11 => 'Lampiran XI. Informasi LPPD',
-                    12 => 'Lampiran XII. Informasi SIMDA',
-                    13 => 'Lampiran XIII. Informasi Dana Desa',    
-                    14 => 'Rekapitulasi Skoring Pemda' 
-                ],
-                'options' => ['class' =>'form-control input-sm' ,'placeholder' => 'Pilih Jenis Laporan ...', 'id' => 'field-kd_laporan'
-                ],
-                'pluginOptions' => [
-                    'allowClear' => true
-                ],
-            ])->label(false);
-        ?>
-    </div>
-    <div id="block-provinsi" style="display:<?= (isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) && Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] == 3) || (isset(Yii::$app->request->queryParams['Laporan']['elimination_level']) && Yii::$app->request->queryParams['Laporan']['elimination_level'] == 1) ? 'block' : 'none' ?>;" class="col-md-4">
-        <?php 
-            if(isset(Yii::$app->request->queryParams['Laporan']['kd_provinsi'])){
-                $model->kd_provinsi = Yii::$app->request->queryParams['Laporan']['kd_provinsi'];             
-            }
-$query =  Yii::$app->db->createCommand(<<<SQL
+    <div class="box box-primary">
+        <div class="box-body">
+            <div class="row col-md-12">
+                <div class="col-md-3">
+                    <?php
+                    $model->Kd_Laporan = isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) ? Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] : '';
+                    echo $form->field($model, 'Kd_Laporan')->widget(Select2::classname(), [
+                        'data' => [
+                            1 => 'Form I - ST Kegiatan',
+                            // 2 => 'Form II - ST KegiatanAudit',
+                            // 3 => 'Form III - ST Kegiatan Evaluasi',
+                            // 4 => 'Form IV - ST Kegiatan Lain-Lain',
+                            5 => 'Form A. Informasi MOU',
+                            6 => 'Lampiran VI. Informasi SPIP',
+                            // 7 => 'Lampiran VII. Informasi APIP',
+                            8 => 'Lampiran VIII. Informasi APBD',
+                            9 => 'Lampiran IX. Informasi LK',
+                            10 => 'Lampiran X. Informasi Lakip',
+                            11 => 'Lampiran XI. Informasi LPPD',
+                            12 => 'Lampiran XII. Informasi SIMDA',
+                            13 => 'Lampiran XIII. Informasi Dana Desa',
+                            14 => 'Rekapitulasi Skoring Pemda'
+                        ],
+                        'options' => ['class' => 'form-control input-sm', 'placeholder' => 'Pilih Jenis Laporan ...', 'id' => 'field-kd_laporan'],
+                        'pluginOptions' => [
+                            'allowClear' => true
+                        ],
+                    ])->label(false);
+                    ?>
+                </div>
+                <div id="block-provinsi" style="display:<?= (isset(Yii::$app->request->queryParams['Laporan']['Kd_Laporan']) && Yii::$app->request->queryParams['Laporan']['Kd_Laporan'] == 3) || (isset(Yii::$app->request->queryParams['Laporan']['elimination_level']) && Yii::$app->request->queryParams['Laporan']['elimination_level'] == 1) ? 'block' : 'none' ?>;" class="col-md-4">
+                    <?php
+                    if (isset(Yii::$app->request->queryParams['Laporan']['kd_provinsi'])) {
+                        $model->kd_provinsi = Yii::$app->request->queryParams['Laporan']['kd_provinsi'];
+                    }
+                    $query =  Yii::$app->db->createCommand(<<<SQL
 SELECT CONVERT(a.province_id, UNSIGNED integer) AS province_id,  CONCAT(a.province_id, '. ', b.name) as name
 FROM ref_pemda a INNER JOIN
 (
@@ -64,37 +63,39 @@ FROM ref_pemda a INNER JOIN
 WHERE a.province_id LIKE :province_id
 GROUP BY a.province_id, b.name
 ORDER BY province_id
-SQL
-)->bindValues([
-    ':province_id' => isset($pemda_id) ? Yii::$app->user->identity->refPemda->province_id : '%',
-])
-->queryAll();
-            $dropDownProvinsi = ArrayHelper::map($query,'province_id','name');
-            echo $form->field($model, 'kd_provinsi')->widget(Select2::classname(), [
-                'data' => $dropDownProvinsi,
-                'options' => ['placeholder' => 'Pilih Provinsi'],
-                'pluginOptions' => [
-                    // 'tags' => true,
-                    // 'tokenSeparators' => [',', ' '],
-                    // 'maximumInputLength' => 100
-                ],
-            ])->label(false);        
-        ?>
-    </div> 
+SQL)->bindValues([
+                        ':province_id' => isset($pemda_id) ? Yii::$app->user->identity->refPemda->province_id : '%',
+                    ])
+                        ->queryAll();
+                    $dropDownProvinsi = ArrayHelper::map($query, 'province_id', 'name');
+                    echo $form->field($model, 'kd_provinsi')->widget(Select2::classname(), [
+                        'data' => $dropDownProvinsi,
+                        'options' => ['placeholder' => 'Pilih Provinsi'],
+                        'pluginOptions' => [
+                            // 'tags' => true,
+                            // 'tokenSeparators' => [',', ' '],
+                            // 'maximumInputLength' => 100
+                        ],
+                    ])->label(false);
+                    ?>
+                </div>
 
-</div>
-<div class="row col-md-12">      
-    <div class="col-md-2 pull-right">
-        <?= Html::submitButton( 'Pilih', ['class' => 'btn btn-default']) ?>        
+            </div>
+            <div class="row col-md-12">
+                <div class="col-md-2 pull-right">
+                    <?= Html::submitButton('Pilih', ['class' => 'btn btn-default']) ?>
+                </div>
+            </div>
+        </div>
+        <!--box-body-->
     </div>
+    <!--box-->
 </div>
-</div> <!--box-body-->
-</div> <!--box-->
-</div> <!--col-->
+<!--col-->
 
 <?php ActiveForm::end(); ?>
 
-<?php 
+<?php
 $this->registerJs(<<<JS
     $("#field-kd_laporan").on("change", function(){
         // hide all first
@@ -144,6 +145,5 @@ $this->registerJs(<<<JS
                 // code block
         }
     })    
-JS
-);
+JS);
 ?>

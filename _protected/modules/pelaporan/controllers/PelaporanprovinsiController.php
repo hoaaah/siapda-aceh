@@ -31,26 +31,26 @@ class PelaporanprovinsiController extends Controller
     }
 
     // Set Tahun
-    protected function getTahun(){
-        if(Yii::$app->session->get('tahun'))
-        {
+    protected function getTahun()
+    {
+        if (Yii::$app->session->get('tahun')) {
             $tahun = Yii::$app->session->get('tahun');
-        }ELSE{
+        } else {
             $tahun = DATE('Y');
         }
         return $tahun;
     }
 
     // Set Bulan
-    protected function getBulan(){
-        if(Yii::$app->session->get('bulan'))
-        {
+    protected function getBulan()
+    {
+        if (Yii::$app->session->get('bulan')) {
             $tahun = Yii::$app->session->get('bulan');
-        }ELSE{
+        } else {
             $tahun = DATE('m');
         }
-        return substr("0".$tahun, -2);
-    }   
+        return substr("0" . $tahun, -2);
+    }
 
     protected function getViewCompilation($model, $getParam)
     {
@@ -64,7 +64,7 @@ class PelaporanprovinsiController extends Controller
             case 4:
                 return $model->andWhere(['kd_pemda' => $getParam['kd_pemda']]);
                 break;
-            
+
             default:
                 return false;
                 break;
@@ -72,25 +72,25 @@ class PelaporanprovinsiController extends Controller
         return false;
     }
 
-    public function actionView($id){
-        IF($this->cekakses() !== true){
+    public function actionView($id)
+    {
+        if ($this->cekakses() !== true) {
             Yii::$app->getSession()->setFlash('warning',  'Anda tidak memiliki hak akses');
             return $this->redirect(Yii::$app->request->referrer);
-        }    
-        IF(Yii::$app->session->get('tahun'))
-        {
+        }
+        if (Yii::$app->session->get('tahun')) {
             $Tahun = Yii::$app->session->get('tahun');
-        }ELSE{
+        } else {
             $Tahun = DATE('Y');
         }
         try {
-            list($kd_rek_1, $kd_rek_2, $kd_rek_3) = explode('.',$id);
+            list($kd_rek_1, $kd_rek_2, $kd_rek_3) = explode('.', $id);
         } catch (Exception $e) {
-            throw new Exception("Error Processing Request: ".$e->getMessage(), 1);
+            throw new Exception("Error Processing Request: " . $e->getMessage(), 1);
         }
         $getParam = Yii::$app->request->queryParams;
         $model = \app\models\CompilationRecord5::find()->where(['tahun' => $Tahun, 'periode_id' => $getParam['periode_id'], 'kd_rek_1' => $kd_rek_1, 'kd_rek_2' => $kd_rek_2, 'kd_rek_3' => $kd_rek_3])->select(['kd_pemda', 'kd_rek_1', 'kd_rek_2', 'kd_rek_3', 'nm_rek_3', "SUM(realisasi) AS realisasi"])->groupBy(['kd_pemda', 'kd_rek_1', 'kd_rek_2', 'kd_rek_3', 'nm_rek_3']);
-        if($this->getViewCompilation($model, $getParam)){
+        if ($this->getViewCompilation($model, $getParam)) {
             $model = $this->getViewCompilation($model, $getParam);
         }
 
@@ -106,7 +106,7 @@ class PelaporanprovinsiController extends Controller
 
     public function actionIndex()
     {
-        IF($this->cekakses() !== true){
+        if ($this->cekakses() !== true) {
             Yii::$app->getSession()->setFlash('warning',  'Anda tidak memiliki hak akses');
             return $this->redirect(Yii::$app->request->referrer);
         }
@@ -115,7 +115,7 @@ class PelaporanprovinsiController extends Controller
         $tahun = $this->getTahun();
         $Tahun = $tahun;
         $bulan = $this->getBulan();
-        $tahunBulan = $tahun.$bulan;
+        $tahunBulan = $tahun . $bulan;
         $perwakilan_id = Yii::$app->user->identity->perwakilan_id;
 
         $get = new \app\models\Laporan();
@@ -130,7 +130,7 @@ class PelaporanprovinsiController extends Controller
         $render = NULL;
         $getparam = NULL;
         $totalPemda = NULL;
-        IF(Yii::$app->request->queryParams){
+        if (Yii::$app->request->queryParams) {
             $getparam = Yii::$app->request->queryParams;
             // this is for array in pemda
             // $kd_pemda_params = NULL;
@@ -145,9 +145,61 @@ class PelaporanprovinsiController extends Controller
             //     }
             // }
             // $kd_pemda_params = substr($kd_pemda_params, 0, -1);            
-            IF($getparam['Laporan']['Kd_Laporan']){
+            if ($getparam['Laporan']['Kd_Laporan']) {
                 $Kd_Laporan = Yii::$app->request->queryParams['Laporan']['Kd_Laporan'];
                 switch ($Kd_Laporan) {
+                    case 1:
+                        $totalCount = Yii::$app->db->createCommand("
+                            SELECT COUNT(a.pemda_id) FROM
+                            (
+                                SELECT
+                                a.pemda_id, b.name AS pemda,
+                                a.kategori_id, a.kelompok_id, a.kegiatan_id, c.name AS kategori, d.name AS kelompok, e.name AS kegiatan,
+                                a.nama_kegiatan, a.no_st, a.tanggal_st
+                                FROM
+                                lkegiatans a
+                                LEFT JOIN ref_pemda b ON a.pemda_id = b.id 
+                                LEFT JOIN ref_kategori_penugasan c ON a.kategori_id = c.id 
+                                LEFT JOIN ref_kelompok d ON a.kelompok_id = d.id 
+                                LEFT JOIN ref_kegiatan e ON a.kegiatan_id = e.id
+                                WHERE a.bulan = :bulan AND a.perwakilan_id = :perwakilanId
+                            ) a
+                            ", [
+                            // ':pemdaId' => '%',
+                            // ':tahun' => $Tahun,
+                            ':bulan' => $tahunBulan,
+                            ':perwakilanId' => $perwakilan_id,
+                        ])->queryScalar();
+
+                        $data = new SqlDataProvider([
+                            'sql' => "
+                                SELECT
+                                a.pemda_id, b.name AS pemda,
+                                a.kategori_id, a.kelompok_id, a.kegiatan_id, c.name AS kategori, d.name AS kelompok, e.name AS kegiatan,
+                                a.nama_kegiatan, a.no_st, a.tanggal_st
+                                FROM
+                                lkegiatans a
+                                LEFT JOIN ref_pemda b ON a.pemda_id = b.id 
+                                LEFT JOIN ref_kategori_penugasan c ON a.kategori_id = c.id 
+                                LEFT JOIN ref_kelompok d ON a.kelompok_id = d.id 
+                                LEFT JOIN ref_kegiatan e ON a.kegiatan_id = e.id
+                                WHERE a.bulan = :bulan AND a.perwakilan_id = :perwakilanId
+                                    ",
+                            'params' => [
+                                // ':pemdaId' => '%',
+                                // ':tahun' => $Tahun,
+                                ':bulan' => $tahunBulan,
+                                ':perwakilanId' => $perwakilan_id,
+                            ],
+                            'totalCount' => $totalCount,
+                            //'sort' =>false, to remove the table header sorting
+                            'pagination' => [
+                                'pageSize' => 50,
+                            ],
+                        ]);
+                        $render = 'laporan1';
+                        break;
+
                     case 5:
                         $totalCount = Yii::$app->db->createCommand("
                             SELECT COUNT(a.id) FROM
@@ -182,11 +234,11 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY a.id
                             ) a
                             ", [
-                                ':pemdaId' => '%',
-                                ':tahun' => $Tahun,
-                                ':bulan' => $tahunBulan,
-                                ':perwakilanId' => $perwakilan_id,
-                            ])->queryScalar();
+                            ':pemdaId' => '%',
+                            ':tahun' => $Tahun,
+                            ':bulan' => $tahunBulan,
+                            ':perwakilanId' => $perwakilan_id,
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -201,7 +253,7 @@ class PelaporanprovinsiController extends Controller
                                         WHERE a.bulan <= :bulan AND a.perwakilan_id LIKE :perwakilanId AND a.pemda_id LIKE :pemdaId AND
                                         a.bulan = (SELECT MAX(b.bulan) FROM lmou b WHERE b.pemda_id = a.pemda_id)
                                     ) b ON a.id = b.pemda_id
-                                WHERE a.id LIKE '%' AND a.perwakilan_id LIKE 1
+                                WHERE a.id LIKE '%' AND a.perwakilan_id LIKE :perwakilanId
                                 ORDER BY a.id
                                     ",
                             'params' => [
@@ -218,7 +270,7 @@ class PelaporanprovinsiController extends Controller
                         ]);
                         $render = 'laporan5';
                         break;
-                   
+
                     case 6:
                         $totalCount = Yii::$app->db->createCommand("
                             SELECT COUNT(a.id) FROM
@@ -253,11 +305,11 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY a.id
                             ) a
                             ", [
-                                ':pemdaId' => '%',
-                                ':tahun' => $Tahun,
-                                ':bulan' => $tahunBulan,
-                                ':perwakilanId' => $perwakilan_id,
-                            ])->queryScalar();
+                            ':pemdaId' => '%',
+                            ':tahun' => $Tahun,
+                            ':bulan' => $tahunBulan,
+                            ':perwakilanId' => $perwakilan_id,
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -322,11 +374,11 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY a.id
                             ) a
                             ", [
-                                ':pemdaId' => '%',
-                                ':tahun' => $Tahun,
-                                ':bulan' => $tahunBulan,
-                                ':perwakilanId' => $perwakilan_id,
-                            ])->queryScalar();
+                            ':pemdaId' => '%',
+                            ':tahun' => $Tahun,
+                            ':bulan' => $tahunBulan,
+                            ':perwakilanId' => $perwakilan_id,
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -385,11 +437,11 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY a.id
                             ) a
                             ", [
-                                ':pemdaId' => '%',
-                                ':tahun' => $Tahun,
-                                ':bulan' => $tahunBulan,
-                                ':perwakilanId' => $perwakilan_id,
-                            ])->queryScalar();
+                            ':pemdaId' => '%',
+                            ':tahun' => $Tahun,
+                            ':bulan' => $tahunBulan,
+                            ':perwakilanId' => $perwakilan_id,
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -452,11 +504,11 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY a.id
                             ) a
                             ", [
-                                ':pemdaId' => '%',
-                                ':tahun' => $Tahun,
-                                ':bulan' => $tahunBulan,
-                                ':perwakilanId' => $perwakilan_id,
-                            ])->queryScalar();
+                            ':pemdaId' => '%',
+                            ':tahun' => $Tahun,
+                            ':bulan' => $tahunBulan,
+                            ':perwakilanId' => $perwakilan_id,
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -529,11 +581,11 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY a.id
                             ) a
                             ", [
-                                ':pemdaId' => '%',
-                                ':tahun' => $Tahun,
-                                ':bulan' => $tahunBulan,
-                                ':perwakilanId' => $perwakilan_id,
-                            ])->queryScalar();
+                            ':pemdaId' => '%',
+                            ':tahun' => $Tahun,
+                            ':bulan' => $tahunBulan,
+                            ':perwakilanId' => $perwakilan_id,
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -677,11 +729,11 @@ class PelaporanprovinsiController extends Controller
                                 ) a HAVING skor like '%'
                             ) a
                             ", [
-                                ':pemdaId' => '%',
-                                ':tahun' => $Tahun,
-                                // ':bulan' => $tahunBulan,
-                                ':perwakilanId' => $perwakilan_id,
-                            ])->queryScalar();
+                            ':pemdaId' => '%',
+                            ':tahun' => $Tahun,
+                            // ':bulan' => $tahunBulan,
+                            ':perwakilanId' => $perwakilan_id,
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -818,11 +870,11 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY c.kd_rek_1, c.kd_rek_2, c.kd_rek_3
                             ) a
                             ", [
-                                ':transfer_id' => 2,
-                                ':tahun' => $Tahun,
-                                ':periode_id' => $getparam['Laporan']['periode_id'],
-                                ':wilayah_id' => $getparam['Laporan']['kd_wilayah'],
-                            ])->queryScalar();
+                            ':transfer_id' => 2,
+                            ':tahun' => $Tahun,
+                            ':periode_id' => $getparam['Laporan']['periode_id'],
+                            ':wilayah_id' => $getparam['Laporan']['kd_wilayah'],
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -871,7 +923,7 @@ class PelaporanprovinsiController extends Controller
                             ],
                         ]);
                         $render = 'laporan1';
-                        break;  
+                        break;
                     case 3:
                         $totalCount = Yii::$app->db->createCommand("
                             SELECT COUNT(a.kd_rek_1) FROM
@@ -909,11 +961,11 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY c.kd_rek_1, c.kd_rek_2, c.kd_rek_3
                             ) a
                             ", [
-                                ':transfer_id' => 1,
-                                ':tahun' => $Tahun,
-                                ':periode_id' => $getparam['Laporan']['periode_id'],
-                                ':province_id' => $getparam['Laporan']['kd_provinsi'],
-                            ])->queryScalar();
+                            ':transfer_id' => 1,
+                            ':tahun' => $Tahun,
+                            ':periode_id' => $getparam['Laporan']['periode_id'],
+                            ':province_id' => $getparam['Laporan']['kd_provinsi'],
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -983,10 +1035,10 @@ class PelaporanprovinsiController extends Controller
                                 ORDER BY a.kd_rek_1, a.kd_rek_2, a.kd_rek_3
                             ) a
                             ", [
-                                ':tahun' => $Tahun,
-                                ':periode_id' => $getparam['Laporan']['periode_id'],
-                                ':pemda_id' => $getparam['Laporan']['kd_pemda'],
-                            ])->queryScalar();
+                            ':tahun' => $Tahun,
+                            ':periode_id' => $getparam['Laporan']['periode_id'],
+                            ':pemda_id' => $getparam['Laporan']['kd_pemda'],
+                        ])->queryScalar();
 
                         $data = new SqlDataProvider([
                             'sql' => "
@@ -1017,14 +1069,14 @@ class PelaporanprovinsiController extends Controller
                             ],
                         ]);
                         $render = 'laporan1';
-                        break;                                              
+                        break;
                     case 5:
                         $query = \app\models\EliminationAccount::find()->where(['tahun' => $Tahun,])->andWhere('kd_rek_1 IN (4,5,6,7)');
                         switch ($getparam['Laporan']['elimination_level']) {
                             case 1:
                                 $pemda = \app\models\RefPemda::find()->select('id')->where(['province_id' => $getparam['Laporan']['kd_provinsi']])->asArray()->all();
                                 $arrayPemda = ArrayHelper::getColumn($pemda, 'id');
-                                if(count($arrayPemda) != 0){
+                                if (count($arrayPemda) != 0) {
                                     $stringArrayPemda = implode(',', $arrayPemda);
                                     $query->andWhere("kd_pemda IN($stringArrayPemda)");
                                 }
@@ -1032,22 +1084,22 @@ class PelaporanprovinsiController extends Controller
                             case 2:
                                 $pemda = \app\models\PemdaWilayah::find()->select('pemda_id')->where(['wilayah_id' => $getparam['Laporan']['kd_wilayah']])->asArray()->all();
                                 $arrayPemda = ArrayHelper::getColumn($pemda, 'pemda_id');
-                                if(count($arrayPemda) != 0){
+                                if (count($arrayPemda) != 0) {
                                     $stringArrayPemda = implode(',', $arrayPemda);
                                     $query->andWhere("kd_pemda IN($stringArrayPemda)");
                                 }
                                 break;
                             case 3:
-                                if(Yii::$app->user->identity->pemda_id){
+                                if (Yii::$app->user->identity->pemda_id) {
                                     $pemda = \app\models\RefPemda::find()->select('id')->where(['province_id' => Yii::$app->user->identity->refPemda->province_id])->asArray()->all();
                                     $arrayPemda = ArrayHelper::getColumn($pemda, 'id');
-                                    if(count($arrayPemda) != 0){
+                                    if (count($arrayPemda) != 0) {
                                         $stringArrayPemda = implode(',', $arrayPemda);
                                         $query->andWhere("kd_pemda IN($stringArrayPemda)");
                                     }
                                 }
-                                break;                            
-                            
+                                break;
+
                             default:
                                 # code...
                                 break;
@@ -1059,14 +1111,13 @@ class PelaporanprovinsiController extends Controller
                             ],
                         ]);
                         $render = 'laporan2';
-                        break;                                                      
+                        break;
 
                     default:
                         # code...
                         break;
                 }
             }
-
         }
 
         return $this->render('index', [
@@ -1089,14 +1140,13 @@ class PelaporanprovinsiController extends Controller
 
     public function actionCetak()
     {
-        IF($this->cekakses() !== true){
+        if ($this->cekakses() !== true) {
             Yii::$app->getSession()->setFlash('warning',  'Anda tidak memiliki hak akses');
             return $this->redirect(Yii::$app->request->referrer);
-        }    
-        IF(Yii::$app->session->get('tahun'))
-        {
+        }
+        if (Yii::$app->session->get('tahun')) {
             $Tahun = Yii::$app->session->get('tahun');
-        }ELSE{
+        } else {
             $Tahun = DATE('Y');
         }
 
@@ -1111,9 +1161,9 @@ class PelaporanprovinsiController extends Controller
         $data6 = NULL;
         $render = NULL;
         $getparam = NULL;
-        IF(Yii::$app->request->queryParams){
-            $getparam = Yii::$app->request->queryParams;         
-            IF($getparam['Laporan']['Kd_Laporan']){
+        if (Yii::$app->request->queryParams) {
+            $getparam = Yii::$app->request->queryParams;
+            if ($getparam['Laporan']['Kd_Laporan']) {
                 $Kd_Laporan = Yii::$app->request->queryParams['Laporan']['Kd_Laporan'];
                 switch ($Kd_Laporan) {
                     case 1:
@@ -1149,11 +1199,11 @@ class PelaporanprovinsiController extends Controller
                                 GROUP BY c.kd_rek_1, c.kd_rek_2, c.kd_rek_3, b.nm_akrual_3 
                                 ORDER BY c.kd_rek_1, c.kd_rek_2, c.kd_rek_3
                                     ")
-                        ->bindValues([
-                            ':transfer_id' => 3,
-                            ':tahun' => $Tahun,
-                            ':periode_id' => $getparam['Laporan']['periode_id'],
-                        ])->queryAll();
+                            ->bindValues([
+                                ':transfer_id' => 3,
+                                ':tahun' => $Tahun,
+                                ':periode_id' => $getparam['Laporan']['periode_id'],
+                            ])->queryAll();
 
                         $render = 'cetaklaporan1';
                         break;
@@ -1198,7 +1248,7 @@ class PelaporanprovinsiController extends Controller
                                 ':wilayah_id' => $getparam['Laporan']['kd_wilayah'],
                             ])->queryAll();
                         $render = 'cetaklaporan1';
-                        break;  
+                        break;
                     case 3:
                         $data = Yii::$app->db->createCommand("
                                 SELECT
@@ -1264,14 +1314,14 @@ class PelaporanprovinsiController extends Controller
                                 ':pemda_id' => $getparam['Laporan']['kd_pemda'],
                             ])->queryAll();
                         $render = 'cetaklaporan1';
-                        break;                                              
+                        break;
                     case 5:
                         $query = \app\models\EliminationAccount::find()->where(['tahun' => $Tahun,])->andWhere('kd_rek_1 IN (4,5,6,7)');
                         switch ($getparam['Laporan']['elimination_level']) {
                             case 1:
                                 $pemda = \app\models\RefPemda::find()->select('id')->where(['province_id' => $getparam['Laporan']['kd_provinsi']])->asArray()->all();
                                 $arrayPemda = ArrayHelper::getColumn($pemda, 'id');
-                                if(count($arrayPemda) != 0){
+                                if (count($arrayPemda) != 0) {
                                     $stringArrayPemda = implode(',', $arrayPemda);
                                     $query->andWhere("kd_pemda IN($stringArrayPemda)");
                                 }
@@ -1279,12 +1329,12 @@ class PelaporanprovinsiController extends Controller
                             case 2:
                                 $pemda = \app\models\PemdaWilayah::find()->select('pemda_id')->where(['wilayah_id' => $getparam['Laporan']['kd_wilayah']])->asArray()->all();
                                 $arrayPemda = ArrayHelper::getColumn($pemda, 'pemda_id');
-                                if(count($arrayPemda) != 0){
+                                if (count($arrayPemda) != 0) {
                                     $stringArrayPemda = implode(',', $arrayPemda);
                                     $query->andWhere("kd_pemda IN($stringArrayPemda)");
                                 }
                                 break;
-                            
+
                             default:
                                 # code...
                                 break;
@@ -1296,14 +1346,13 @@ class PelaporanprovinsiController extends Controller
                             ],
                         ]);
                         $render = 'laporan2';
-                        break;                                                      
+                        break;
 
                     default:
                         # code...
                         break;
                 }
             }
-
         }
 
         return $this->render($render, [
@@ -1320,20 +1369,21 @@ class PelaporanprovinsiController extends Controller
             'getparam' => $getparam,
             'Tahun' => $Tahun,
         ]);
-    }    
+    }
 
 
-    protected function cekakses(){
+    protected function cekakses()
+    {
 
-        IF(Yii::$app->user->identity){
+        if (Yii::$app->user->identity) {
             $akses = \app\models\RefUserMenu::find()->where(['kd_user' => Yii::$app->user->identity->kd_user, 'menu' => 602])->one();
-            IF($akses){
+            if ($akses) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }ELSE{
+        } else {
             return false;
         }
-    }      
+    }
 }
