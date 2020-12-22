@@ -63,7 +63,8 @@ FROM ref_pemda a INNER JOIN
 WHERE a.province_id LIKE :province_id
 GROUP BY a.province_id, b.name
 ORDER BY province_id
-SQL)->bindValues([
+SQL
+)->bindValues([
                         ':province_id' => isset($pemda_id) ? Yii::$app->user->identity->refPemda->province_id : '%',
                     ])
                         ->queryAll();
