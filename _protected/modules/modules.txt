@@ -34,8 +34,8 @@
 	07 => Assesment => APIP
 	08 => Assesment => SPIP
 	09 => SPIP (Perkada, Target, Evaluasi)
-	10 => 
-	11 => 
+	10 => Penyerapan APIP
+	11 => Penyerapan Perwakilan
 	12 => 
 4 => Anggaran
 	01 => 

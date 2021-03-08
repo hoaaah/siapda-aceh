@@ -53,6 +53,11 @@
                             ['label' => 'Alokasi/Realisasi Dana Desa', 'icon' => 'circle-o', 'url' => ['/dataentry/danadesa'] /*, 'visible' => akses(305)*/],
                             ['label' => 'Siskeudes', 'icon' => 'circle-o', 'url' => ['/management/menu'], 'visible' => akses(401)],
                         ],],
+                        ['label' => 'Penyerapan Anggaran', 'icon' => 'circle-o', 'url' => '#', 'visible' => akses(310) || akses(311), 'items'  =>
+                        [
+                            ['label' => 'Data Penyerapan', 'icon' => 'circle-o', 'url' => ['/penyerapan/apip'], 'visible' => akses(310)],
+                            ['label' => 'Data Penyerapan Capture', 'icon' => 'circle-o', 'url' => ['/penyerapan/pwk'], 'visible' => akses(311)],
+                        ],],
                         // ['label' => 'Data Capture', 'icon' => 'circle-o', 'items' => [
                         //     ['label' => 'Perwakilan', 'icon' => 'circle-o', 'url' => ['/parameter/perwakilan'], /* 'visible' => akses(205) */ ],
                         // ]],
