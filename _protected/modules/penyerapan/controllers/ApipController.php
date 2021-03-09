@@ -62,8 +62,16 @@ class ApipController extends Controller
     public function actionIndex()
     {
 
+        $tahun = $this->getTahun();
+        $bulan = $this->getBulan();
+        $tahunBulan = $tahun . $bulan;
+
         $searchModel = new PenyerapanRekeningSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->query->andWhere([
+            'bulan' => $tahunBulan,
+            'pemda_id' => Yii::$app->user->identity->pemda_id
+        ]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -102,35 +110,44 @@ class ApipController extends Controller
             $pemda = RefPemda::findOne(['id' => Yii::$app->user->identity->pemda_id]);
         }
 
+        $rekening3 = Yii::$app->db->createCommand("SELECT CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3) AS rek3, CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3, ' ', nm_rek_3) AS nm_rek_3 FROM ref_rek_3 WHERE kd_rek_1 IN (4,5,6) AND (kd_rek_1, kd_rek_2) NOT IN ((6,3))")->queryAll();
+        $rekening3ArrayList = ArrayHelper::map($rekening3, 'rek3', 'nm_rek_3');
+
         $model = new PenyerapanRekening();
         $model->bulan = $this->tahun . $this->bulan;
         $model->perwakilan_id = $pemda->perwakilan_id;
         $model->province_id = $pemda->province_id;
         $model->pemda_id = $pemda->id;
 
-        $modelRekening = [new PenyerapanRekening];
-
-        $rekening3 = Yii::$app->db->createCommand("SELECT CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3) AS rek3, CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3, ' ', nm_rek_3) AS nm_rek_3 FROM ref_rek_3 WHERE kd_rek_1 IN (4,5,6) AND (kd_rek_1, kd_rek_2) NOT IN ((6,3))")->queryAll();
-        $rekening3ArrayList = ArrayHelper::map($rekening3, 'rek3', 'nm_rek_3');
+        // $modelRekening = [new PenyerapanRekening];
+        $modelRekening = [];
+        $i = 0;
+        foreach ($rekening3 as $value) {
+            $modelRekening[$value['rek3']] = new PenyerapanRekening();
+            $modelRekening[$value['rek3']]->setAttributes($model->attributes);
+            $modelRekening[$value['rek3']]->rek3_gabung = $value['rek3'];
+            $i++;
+        }
 
         if ($model->load(Yii::$app->request->post())) {
-            $modelRekening = Model::createMultiple(PenyerapanRekening::class);
+            // $modelRekening = Model::createMultiple(PenyerapanRekening::class);
             Model::loadMultiple($modelRekening, Yii::$app->request->post());
 
+            // return var_dump(Yii::$app->request->post());
 
             $transaction = \Yii::$app->db->beginTransaction();
             try {
                 $flag = null;
                 // if ($flag = $model->save(false)) {
-                    foreach ($modelRekening as $rincianRekening) {
-                        $rincianRekening->customer_id = $model->id;
-                        $rincianRekening = new PenyerapanRekening();
-                        $rincianRekening->setAttributes($model->attributes());
-                        if (! ($flag = $rincianRekening->save(false))) {
+                foreach ($modelRekening as $key => $rincianRekening) {
+                    if ($rincianRekening->anggaran) {
+                        $rincianRekening->tanggal_pelaporan = $model->tanggal_pelaporan;
+                        if (!($flag = $rincianRekening->save(false))) {
                             $transaction->rollBack();
                             break;
                         }
                     }
+                }
                 // }
                 if ($flag) {
                     $transaction->commit();
@@ -141,7 +158,7 @@ class ApipController extends Controller
                 $transaction->rollBack();
                 return 0;
             }
-            
+
 
             // if ($model->save()) {
             //     return 1;
@@ -152,7 +169,8 @@ class ApipController extends Controller
             return $this->renderAjax('_form', [
                 'model' => $model,
                 'modelRekening' => $modelRekening,
-                'rekening3ArrayList' => $rekening3ArrayList
+                'rekening3ArrayList' => $rekening3ArrayList,
+                'rekening3' => $rekening3
             ]);
         }
     }
@@ -176,10 +194,12 @@ class ApipController extends Controller
             if ($model->save()) {
                 return 1;
             } else {
-                return 0;
+                $return = "";
+                if ($model->errors) $return .= $this->setErrorMessage($model->errors);
+                return $return;
             }
         } else {
-            return $this->renderAjax('_form', [
+            return $this->renderAjax('_formindividu', [
                 'model' => $model,
             ]);
         }
@@ -198,6 +218,17 @@ class ApipController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(Yii::$app->request->referrer);
+    }
+
+
+    protected function setErrorMessage($errors)
+    {
+        $return = '<div class="alert alert-warning">';
+        foreach ($errors as $key => $data) {
+            $return .= $key . ": " . $data['0'] . '<br>';
+        }
+        $return .= '</div>';
+        return $return;
     }
 
     /**

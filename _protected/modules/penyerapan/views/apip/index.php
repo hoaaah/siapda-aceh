@@ -10,88 +10,266 @@ use yii\bootstrap\Modal;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
 
-$this->title = 'Penyerapan Rekenings';
+$this->title = 'Penyerapan Anggaran';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="penyerapan-rekening-index">
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
-    <p>
-        <?= Html::a('Tambah Penyerapan Rekening', ['create'], [
-                                'class' => 'btn btn-xs btn-success',
-                                'data-toggle'=>"modal",
-                                'data-target'=>"#myModal",
-                                'data-title'=>"Tambah",
-                                ]) ?>
-    </p>
     <?= GridView::widget([
-        'id' => 'penyerapan-rekening',    
+        'id' => 'penyerapan-rekening',
         'dataProvider' => $dataProvider,
-        'export' => false, 
-        'responsive'=>true,
-        'hover'=>true,     
-        'resizableColumns'=>true,
-        'panel'=>['type'=>'primary', 'heading'=>$this->title],
-        'responsiveWrap' => false,        
+        // 'export' => true,
+        'responsive' => true,
+        'hover' => true,
+        // 'resizableColumns' => true,
+        'panel' => ['type' => 'primary', 'heading' => 'Anggaran dan Realisasi Per Jenis'],
+        'responsiveWrap' => false,
         'toolbar' => [
             [
-                '{toggleData}',
-                '{export}',
-                // 'content' => $this->render('_search', ['model' => $searchModel, 'Tahun' => $Tahun]),
+                'content' =>
+                Html::a(
+                    '<i class="glyphicon glyphicon-plus"></i> Input Data Penyerapan',
+                    ['create'],
+                    [
+                        'class' => 'btn btn-success',
+                        'data-toggle' => "modal",
+                        'data-target' => "#myModal",
+                        'data-title' => "Input Data Penyerapan",
+                    ]
+                ) .
+                    Html::a(
+                        '<i class="glyphicon glyphicon-repeat"></i>',
+                        [''],
+                        ['data-pjax' => 1, 'class' => 'btn btn-default', 'title' => 'Reset Grid']
+                    ) .
+                    '{toggleData}' .
+                    '{export}'
             ],
-        ],       
+        ],
         'pager' => [
             'firstPageLabel' => 'Awal',
             'lastPageLabel'  => 'Akhir'
         ],
-        'pjax'=>true,
-        'pjaxSettings'=>[
+        'pjax' => true,
+        'pjaxSettings' => [
             'options' => ['id' => 'penyerapan-rekening-pjax', 'timeout' => 5000],
-        ],        
+        ],
         // 'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
-            'bulan',
-            'perwakilan_id',
-            'province_id',
-            'pemda_id',
-            // 'tanggal_pelaporan',
-            // 'kd_rek_1',
-            // 'kd_rek_2',
-            // 'kd_rek_3',
-            // 'kd_rek_4',
-            // 'kd_rek_5',
-            // 'kd_rek_6',
-            // 'anggaran',
-            // 'realisasi',
+            ['class' => 'kartik\grid\SerialColumn'],
+            // [
+            //     'attribute' => 'bulan',
+            //     'group' => true,
+            // ],
+            [
+                'attribute' => 'tanggal_pelaporan',
+                'group' => true,
+            ],
+            'refRek3.nm_rek_3',
+            'anggaran:decimal',
+            'realisasi:decimal',
 
             [
                 'class' => 'kartik\grid\ActionColumn',
-                'template' => '{view} {update} {delete}',
+                'template' => '{update} {delete}',
                 'noWrap' => true,
-                'vAlign'=>'top',
+                'vAlign' => 'top',
                 'buttons' => [
-                        'update' => function ($url, $model) {
-                          return Html::a('<span class="glyphicon glyphicon-pencil"></span>', $url,
-                              [  
-                                 'title' => Yii::t('yii', 'ubah'),
-                                 'data-toggle'=>"modal",
-                                 'data-target'=>"#myModal",
-                                 'data-title'=> "Ubah",
-                              ]);
-                        },
-                        'view' => function ($url, $model) {
-                          return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', $url,
-                              [  
-                                 'title' => Yii::t('yii', 'lihat'),
-                                 'data-toggle'=>"modal",
-                                 'data-target'=>"#myModal",
-                                 'data-title'=> "Lihat",
-                              ]);
-                        },                        
+                    'update' => function ($url, $model) {
+                        return Html::a(
+                            '<span class="glyphicon glyphicon-pencil"></span>',
+                            $url,
+                            [
+                                'title' => Yii::t('yii', 'ubah'),
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Ubah",
+                            ]
+                        );
+                    },
+                    'view' => function ($url, $model) {
+                        return Html::a(
+                            '<span class="glyphicon glyphicon-eye-open"></span>',
+                            $url,
+                            [
+                                'title' => Yii::t('yii', 'lihat'),
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Lihat",
+                            ]
+                        );
+                    },
+                ]
+            ],
+        ],
+    ]); ?>
+
+
+
+    <?= GridView::widget([
+        'id' => 'penyerapan-urusan',
+        'dataProvider' => $dataProvider,
+        // 'export' => true,
+        'responsive' => true,
+        'hover' => true,
+        // 'resizableColumns' => true,
+        'panel' => ['type' => 'primary', 'heading' => 'Anggaran dan Realisasi Per Urusan'],
+        'responsiveWrap' => false,
+        'toolbar' => [
+            [
+                'content' =>
+                Html::a(
+                    '<i class="glyphicon glyphicon-plus"></i> Input Data Urusan',
+                    ['create-urusan'],
+                    [
+                        'class' => 'btn btn-success',
+                        'data-toggle' => "modal",
+                        'data-target' => "#myModal",
+                        'data-title' => "Input Data Urusan",
+                    ]
+                ) .
+                    '{toggleData}' .
+                    '{export}'
+            ],
+        ],
+        'pager' => [
+            'firstPageLabel' => 'Awal',
+            'lastPageLabel'  => 'Akhir'
+        ],
+        'pjax' => true,
+        'pjaxSettings' => [
+            'options' => ['id' => 'penyerapan-urusan-pjax', 'timeout' => 5000],
+        ],
+        // 'filterModel' => $searchModel,
+        'columns' => [
+            ['class' => 'kartik\grid\SerialColumn'],
+            // [
+            //     'attribute' => 'bulan',
+            //     'group' => true,
+            // ],
+            [
+                'attribute' => 'tanggal_pelaporan',
+                'group' => true,
+            ],
+            'refRek3.nm_rek_3',
+            'anggaran:decimal',
+            'realisasi:decimal',
+
+            [
+                'class' => 'kartik\grid\ActionColumn',
+                'template' => '{update} {delete}',
+                'noWrap' => true,
+                'vAlign' => 'top',
+                'buttons' => [
+                    'update' => function ($url, $model) {
+                        return Html::a(
+                            '<span class="glyphicon glyphicon-pencil"></span>',
+                            $url,
+                            [
+                                'title' => Yii::t('yii', 'ubah'),
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Ubah",
+                            ]
+                        );
+                    },
+                    'view' => function ($url, $model) {
+                        return Html::a(
+                            '<span class="glyphicon glyphicon-eye-open"></span>',
+                            $url,
+                            [
+                                'title' => Yii::t('yii', 'lihat'),
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Lihat",
+                            ]
+                        );
+                    },
+                ]
+            ],
+        ],
+    ]); ?>
+
+
+    <?= GridView::widget([
+        'id' => 'penyerapan-triwulan',
+        'dataProvider' => $dataProvider,
+        // 'export' => true,
+        'responsive' => true,
+        'hover' => true,
+        // 'resizableColumns' => true,
+        'panel' => ['type' => 'primary', 'heading' => 'Anggaran dan Realisasi Per Jenis Per Triwulan'],
+        'responsiveWrap' => false,
+        'toolbar' => [
+            [
+                'content' =>
+                Html::a(
+                    '<i class="glyphicon glyphicon-plus"></i> Input Data Triwulan',
+                    ['create-urusan'],
+                    [
+                        'class' => 'btn btn-success',
+                        'data-toggle' => "modal",
+                        'data-target' => "#myModal",
+                        'data-title' => "Input Data Triwulan",
+                    ]
+                ) .
+                    '{toggleData}' .
+                    '{export}'
+            ],
+        ],
+        'pager' => [
+            'firstPageLabel' => 'Awal',
+            'lastPageLabel'  => 'Akhir'
+        ],
+        'pjax' => true,
+        'pjaxSettings' => [
+            'options' => ['id' => 'penyerapan-urusan-pjax', 'timeout' => 5000],
+        ],
+        // 'filterModel' => $searchModel,
+        'columns' => [
+            ['class' => 'kartik\grid\SerialColumn'],
+            // [
+            //     'attribute' => 'bulan',
+            //     'group' => true,
+            // ],
+            [
+                'attribute' => 'tanggal_pelaporan',
+                'group' => true,
+            ],
+            'refRek3.nm_rek_3',
+            'anggaran:decimal',
+            'realisasi:decimal',
+
+            [
+                'class' => 'kartik\grid\ActionColumn',
+                'template' => '{update} {delete}',
+                'noWrap' => true,
+                'vAlign' => 'top',
+                'buttons' => [
+                    'update' => function ($url, $model) {
+                        return Html::a(
+                            '<span class="glyphicon glyphicon-pencil"></span>',
+                            $url,
+                            [
+                                'title' => Yii::t('yii', 'ubah'),
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Ubah",
+                            ]
+                        );
+                    },
+                    'view' => function ($url, $model) {
+                        return Html::a(
+                            '<span class="glyphicon glyphicon-eye-open"></span>',
+                            $url,
+                            [
+                                'title' => Yii::t('yii', 'lihat'),
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Lihat",
+                            ]
+                        );
+                    },
                 ]
             ],
         ],
@@ -105,12 +283,13 @@ $this->params['breadcrumbs'][] = $this->title;
     ],
     'size' => 'modal-lg'
 ]);
- 
+
 echo '...';
- 
+
 Modal::end();
 
-$this->registerJs(<<<JS
+$this->registerJs(
+    <<<JS
     $('#myModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
         var modal = $(this)
