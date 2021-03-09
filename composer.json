@@ -29,7 +29,7 @@
         "kartik-v/yii2-krajee-base": "*",
         "kartik-v/yii2-field-range": "*",
         "2amigos/yii2-date-picker-widget": "~1.0",
-        "wbraganca/yii2-dynamicform": "*",
+        "kidzen/yii2-dynamicform": "*",
         "2amigos/yii2-chartjs-widget": "~2.0",
         "kartik-v/yii2-detail-view": "*",
         "softcommerce/yii2-knob": "*",

@@ -100,9 +100,10 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php Modal::begin([
     'id' => 'myModal',
     'header' => '<h4 class="modal-title">Lihat lebih...</h4>',
-        'options' => [
-            'tabindex' => false // important for Select2 to work properly
-        ], 
+    'options' => [
+        'tabindex' => false // important for Select2 to work properly
+    ],
+    'size' => 'modal-lg'
 ]);
  
 echo '...';

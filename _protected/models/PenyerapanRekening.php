@@ -32,6 +32,8 @@ class PenyerapanRekening extends \yii\db\ActiveRecord
         return 'penyerapan_rekening';
     }
 
+    public $rek3_gabung;
+
     /**
      * {@inheritdoc}
      */
@@ -43,6 +45,7 @@ class PenyerapanRekening extends \yii\db\ActiveRecord
             [['tanggal_pelaporan'], 'safe'],
             [['anggaran', 'realisasi'], 'number'],
             [['bulan'], 'string', 'max' => 6],
+            [['rek3_gabung'], 'string'],
             [['pemda_id'], 'string', 'max' => 5],
         ];
     }
@@ -65,6 +68,7 @@ class PenyerapanRekening extends \yii\db\ActiveRecord
             'kd_rek_4' => 'Kd Rek 4',
             'kd_rek_5' => 'Kd Rek 5',
             'kd_rek_6' => 'Kd Rek 6',
+            'rek3_gabung' => 'Rekening Belanja',
             'anggaran' => 'Anggaran',
             'realisasi' => 'Realisasi',
         ];

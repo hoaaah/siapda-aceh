@@ -2,13 +2,17 @@
 
 namespace app\modules\penyerapan\controllers;
 
+use app\models\Model;
 use Yii;
 use app\models\PenyerapanRekening;
 use app\models\RefPemda;
+use app\models\RefRek3;
 use app\modules\penyerapan\models\PenyerapanRekeningSearch;
+use Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
 
@@ -104,15 +108,51 @@ class ApipController extends Controller
         $model->province_id = $pemda->province_id;
         $model->pemda_id = $pemda->id;
 
+        $modelRekening = [new PenyerapanRekening];
+
+        $rekening3 = Yii::$app->db->createCommand("SELECT CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3) AS rek3, CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3, ' ', nm_rek_3) AS nm_rek_3 FROM ref_rek_3 WHERE kd_rek_1 IN (4,5,6) AND (kd_rek_1, kd_rek_2) NOT IN ((6,3))")->queryAll();
+        $rekening3ArrayList = ArrayHelper::map($rekening3, 'rek3', 'nm_rek_3');
+
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                return 1;
-            } else {
+            $modelRekening = Model::createMultiple(PenyerapanRekening::class);
+            Model::loadMultiple($modelRekening, Yii::$app->request->post());
+
+
+            $transaction = \Yii::$app->db->beginTransaction();
+            try {
+                $flag = null;
+                // if ($flag = $model->save(false)) {
+                    foreach ($modelRekening as $rincianRekening) {
+                        $rincianRekening->customer_id = $model->id;
+                        $rincianRekening = new PenyerapanRekening();
+                        $rincianRekening->setAttributes($model->attributes());
+                        if (! ($flag = $rincianRekening->save(false))) {
+                            $transaction->rollBack();
+                            break;
+                        }
+                    }
+                // }
+                if ($flag) {
+                    $transaction->commit();
+                    return 1;
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }
+            } catch (Exception $e) {
+                $transaction->rollBack();
                 return 0;
             }
+            
+
+            // if ($model->save()) {
+            //     return 1;
+            // } else {
+            //     return 0;
+            // }
         } else {
             return $this->renderAjax('_form', [
                 'model' => $model,
+                'modelRekening' => $modelRekening,
+                'rekening3ArrayList' => $rekening3ArrayList
             ]);
         }
     }
