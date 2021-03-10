@@ -63,6 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
             // ],
             [
                 'attribute' => 'tanggal_pelaporan',
+                'format' => 'date',
                 'group' => true,
             ],
             'refRek3.nm_rek_3',
@@ -193,7 +194,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= GridView::widget([
         'id' => 'penyerapan-triwulan',
-        'dataProvider' => $dataProvider,
+        'dataProvider' => $dataProviderTriwulan,
         // 'export' => true,
         'responsive' => true,
         'hover' => true,
@@ -205,7 +206,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'content' =>
                 Html::a(
                     '<i class="glyphicon glyphicon-plus"></i> Input Data Triwulan',
-                    ['create-urusan'],
+                    ['/penyerapan/triwulan/create'],
                     [
                         'class' => 'btn btn-success',
                         'data-toggle' => "modal",
@@ -223,7 +224,7 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
         'pjax' => true,
         'pjaxSettings' => [
-            'options' => ['id' => 'penyerapan-urusan-pjax', 'timeout' => 5000],
+            'options' => ['id' => 'penyerapan-triwulan-pjax', 'timeout' => 5000],
         ],
         // 'filterModel' => $searchModel,
         'columns' => [
@@ -237,8 +238,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'group' => true,
             ],
             'refRek3.nm_rek_3',
-            'anggaran:decimal',
-            'realisasi:decimal',
+            // 'anggaran:decimal',
+            // 'realisasi:decimal',
 
             [
                 'class' => 'kartik\grid\ActionColumn',

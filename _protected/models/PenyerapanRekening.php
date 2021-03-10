@@ -40,9 +40,9 @@ class PenyerapanRekening extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['bulan', 'perwakilan_id', 'province_id', 'pemda_id'], 'required'],
+            [['bulan', 'perwakilan_id', 'province_id', 'pemda_id', 'tanggal_pelaporan'], 'required'],
             [['perwakilan_id', 'province_id', 'kd_rek_1', 'kd_rek_2', 'kd_rek_3', 'kd_rek_4', 'kd_rek_5', 'kd_rek_6'], 'integer'],
-            [['tanggal_pelaporan'], 'safe'],
+            // [['tanggal_pelaporan'], 'safe'],
             [['anggaran', 'realisasi'], 'number'],
             [['bulan'], 'string', 'max' => 6],
             [['rek3_gabung'], 'string'],

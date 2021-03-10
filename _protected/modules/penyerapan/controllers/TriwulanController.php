@@ -3,21 +3,20 @@
 namespace app\modules\penyerapan\controllers;
 
 use app\models\Model;
-use Yii;
 use app\models\PenyerapanRekening;
+use Yii;
+use app\models\PenyerapanTriwulan;
 use app\models\RefPemda;
-use app\models\RefRek3;
-use app\modules\penyerapan\models\PenyerapanRekeningSearch;
 use app\modules\penyerapan\models\PenyerapanTriwulanSearch;
 use Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\helpers\VarDumper;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
-
-class ApipController extends Controller
+class TriwulanController extends Controller
 {
     /**
      * @inheritdoc
@@ -35,77 +34,59 @@ class ApipController extends Controller
     }
 
     // Set Tahun
-    protected function getTahun()
-    {
-        if (Yii::$app->session->get('tahun')) {
+    protected function getTahun(){
+        if(Yii::$app->session->get('tahun'))
+        {
             $tahun = Yii::$app->session->get('tahun');
-        } else {
+        }ELSE{
             $tahun = DATE('Y');
         }
         return $tahun;
     }
 
     // Set Bulan
-    protected function getBulan()
-    {
-        if (Yii::$app->session->get('bulan')) {
+    protected function getBulan(){
+        if(Yii::$app->session->get('bulan'))
+        {
             $tahun = Yii::$app->session->get('bulan');
-        } else {
+        }ELSE{
             $tahun = DATE('m');
         }
-        return substr("0" . $tahun, -2);
-    }
+        return substr("0".$tahun, -2);
+    }    
 
     /**
-     * Lists all PenyerapanRekening models.
+     * Lists all PenyerapanTriwulan models.
      * @return mixed
      */
     public function actionIndex()
     {
 
-        $tahun = $this->getTahun();
-        $bulan = $this->getBulan();
-        $tahunBulan = $tahun . $bulan;
-
-        $searchModel = new PenyerapanRekeningSearch();
+        $searchModel = new PenyerapanTriwulanSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andWhere([
-            'bulan' => $tahunBulan,
-            'pemda_id' => Yii::$app->user->identity->pemda_id
-        ]);
-        $dataProvider->pagination->pageSize = 0;
-        $dataProvider->sort = false;
-        
-
-        $dataProviderTriwulan = (new PenyerapanTriwulanSearch())->search(Yii::$app->request->queryParams);
-        $dataProviderTriwulan->query->andWhere([
-            'bulan' => $tahunBulan,
-            'pemda_id' => Yii::$app->user->identity->pemda_id
-        ]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'Tahun' => $this->getTahun(),
-            'dataProviderTriwulan' => $dataProviderTriwulan
         ]);
     }
 
     /**
-     * Displays a single PenyerapanRekening model.
+     * Displays a single PenyerapanTriwulan model.
      * @param integer $id
      * @return mixed
      */
     public function actionView($id)
     {
-
+        
         return $this->renderAjax('view', [
             'model' => $this->findModel($id),
         ]);
     }
 
     /**
-     * Creates a new PenyerapanRekening model.
+     * Creates a new PenyerapanTriwulan model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
@@ -114,7 +95,7 @@ class ApipController extends Controller
         // global parameters
         $tahun = $this->getTahun();
         $bulan = $this->getBulan();
-        $tahunBulan = $tahun . $bulan;
+        $tahunBulan = $tahun.$bulan;
 
         $pemda = null;
         if (Yii::$app->user->identity->pemda_id) {
@@ -124,21 +105,31 @@ class ApipController extends Controller
         $rekening3 = Yii::$app->db->createCommand("SELECT CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3) AS rek3, CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3, ' ', nm_rek_3) AS nm_rek_3 FROM ref_rek_3 WHERE kd_rek_1 IN (4,5,6) AND (kd_rek_1, kd_rek_2) NOT IN ((6,3))")->queryAll();
         $rekening3ArrayList = ArrayHelper::map($rekening3, 'rek3', 'nm_rek_3');
 
-        $model = new PenyerapanRekening();
-        $model->bulan = $this->tahun . $this->bulan;
+        $penyerapanRekeningPeriodeIni = PenyerapanRekening::find()->select('MAX(tanggal_pelaporan) AS tanggal_pelaporan')->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan])->one();
+        if(!$penyerapanRekeningPeriodeIni) return "Isi terlebih dahulu data penyerapan rekening untuk periode ini";
+
+        $penyerapanRekeningPeriodeBulan = PenyerapanRekening::find()->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan, 'tanggal_pelaporan' => $penyerapanRekeningPeriodeIni->tanggal_pelaporan])->all();
+
+        $model = new PenyerapanTriwulan();
+        $model->bulan = $this->tahun.$this->bulan;
         $model->perwakilan_id = $pemda->perwakilan_id;
         $model->province_id = $pemda->province_id;
         $model->pemda_id = $pemda->id;
+        $model->tanggal_pelaporan = $penyerapanRekeningPeriodeIni->tanggal_pelaporan;
 
-        // $modelRekening = [new PenyerapanRekening];
         $modelRekening = [];
         $i = 0;
-        foreach ($rekening3 as $value) {
-            $modelRekening[$value['rek3']] = new PenyerapanRekening();
-            $modelRekening[$value['rek3']]->setAttributes($model->attributes);
-            $modelRekening[$value['rek3']]->rek3_gabung = $value['rek3'];
+        foreach ($penyerapanRekeningPeriodeBulan as $value) {
+            $modelRekening[$value->kd_rek_1 . '.' . $value->kd_rek_2 . '.' . $value->kd_rek_3] = new PenyerapanTriwulan();
+            $modelRekening[$value->kd_rek_1 . '.' . $value->kd_rek_2 . '.' . $value->kd_rek_3]->setAttributes($model->attributes);
+            $modelRekening[$value->kd_rek_1 . '.' . $value->kd_rek_2 . '.' . $value->kd_rek_3]->rek3_gabung = $value->kd_rek_1 . '.' . $value->kd_rek_2 . '.' . $value->kd_rek_3;
+            $modelRekening[$value->kd_rek_1 . '.' . $value->kd_rek_2 . '.' . $value->kd_rek_3]->anggaran = $value->anggaran;
+            $modelRekening[$value->kd_rek_1 . '.' . $value->kd_rek_2 . '.' . $value->kd_rek_3]->realisasi = $value->realisasi;
             $i++;
         }
+
+        // return VarDumper::dump($modelRekening, 10, true);
+
 
         if ($model->load(Yii::$app->request->post())) {
             // $modelRekening = Model::createMultiple(PenyerapanRekening::class);
@@ -163,7 +154,6 @@ class ApipController extends Controller
                 if ($flag) {
                     $transaction->commit();
                     return 1;
-                    return $this->redirect(['view', 'id' => $model->id]);
                 }
             } catch (Exception $e) {
                 $transaction->rollBack();
@@ -181,13 +171,14 @@ class ApipController extends Controller
                 'model' => $model,
                 'modelRekening' => $modelRekening,
                 'rekening3ArrayList' => $rekening3ArrayList,
-                'rekening3' => $rekening3
+                'rekening3' => $rekening3,
+                'penyerapanRekeningPeriodeBulan' => $penyerapanRekeningPeriodeBulan
             ]);
         }
     }
 
     /**
-     * Updates an existing PenyerapanRekening model.
+     * Updates an existing PenyerapanTriwulan model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -197,27 +188,27 @@ class ApipController extends Controller
         // global parameters
         $tahun = $this->getTahun();
         $bulan = $this->getBulan();
-        $tahunBulan = $tahun . $bulan;
+        $tahunBulan = $tahun.$bulan;
 
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
+            IF($model->save()){
                 return 1;
-            } else {
+            }ELSE{
                 $return = "";
                 if ($model->errors) $return .= $this->setErrorMessage($model->errors);
                 return $return;
             }
         } else {
-            return $this->renderAjax('_formindividu', [
+            return $this->renderAjax('_form', [
                 'model' => $model,
             ]);
         }
     }
 
     /**
-     * Deletes an existing PenyerapanRekening model.
+     * Deletes an existing PenyerapanTriwulan model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -231,7 +222,6 @@ class ApipController extends Controller
         return $this->redirect(Yii::$app->request->referrer);
     }
 
-
     protected function setErrorMessage($errors)
     {
         $return = '<div class="alert alert-warning">';
@@ -242,16 +232,17 @@ class ApipController extends Controller
         return $return;
     }
 
+
     /**
-     * Finds the PenyerapanRekening model based on its primary key value.
+     * Finds the PenyerapanTriwulan model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return PenyerapanRekening the loaded model
+     * @return PenyerapanTriwulan the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = PenyerapanRekening::findOne($id)) !== null) {
+        if (($model = PenyerapanTriwulan::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
@@ -259,17 +250,17 @@ class ApipController extends Controller
     }
 
 
-    protected function cekakses()
-    {
+    protected function cekakses(){
 
-        if (Yii::$app->user->identity) {
+        IF(Yii::$app->user->identity){
             $akses = \app\models\RefUserMenu::find()->where(['kd_user' => Yii::$app->user->identity->kd_user, 'menu' => 310])->one();
-            if ($akses) {
+            IF($akses){
                 return true;
-            } else {
+            }else{
                 return false;
             }
         }
         return false;
-    }
+    }  
+
 }
