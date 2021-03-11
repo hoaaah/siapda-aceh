@@ -9,6 +9,7 @@ use app\models\RefPemda;
 use app\models\RefRek3;
 use app\modules\penyerapan\models\PenyerapanRekeningSearch;
 use app\modules\penyerapan\models\PenyerapanTriwulanSearch;
+use app\modules\penyerapan\models\PenyerapanUrusanSearch;
 use Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -75,19 +76,29 @@ class ApipController extends Controller
         ]);
         $dataProvider->pagination->pageSize = 0;
         $dataProvider->sort = false;
-        
+
+        $dataProviderUrusan = (new PenyerapanUrusanSearch())->search(Yii::$app->request->queryParams);
+        $dataProviderUrusan->query->andWhere([
+            'bulan' => $tahunBulan,
+            'pemda_id' => Yii::$app->user->identity->pemda_id
+        ]);
+        $dataProviderUrusan->pagination->pageSize = 0;
+        $dataProviderUrusan->sort = false;
 
         $dataProviderTriwulan = (new PenyerapanTriwulanSearch())->search(Yii::$app->request->queryParams);
         $dataProviderTriwulan->query->andWhere([
             'bulan' => $tahunBulan,
             'pemda_id' => Yii::$app->user->identity->pemda_id
         ]);
+        $dataProviderTriwulan->pagination->pageSize = 0;
+        $dataProviderTriwulan->sort = false;
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'Tahun' => $this->getTahun(),
-            'dataProviderTriwulan' => $dataProviderTriwulan
+            'dataProviderTriwulan' => $dataProviderTriwulan,
+            'dataProviderUrusan' => $dataProviderUrusan,
         ]);
     }
 
@@ -149,33 +160,22 @@ class ApipController extends Controller
             $transaction = \Yii::$app->db->beginTransaction();
             try {
                 $flag = null;
-                // if ($flag = $model->save(false)) {
                 foreach ($modelRekening as $key => $rincianRekening) {
-                    if ($rincianRekening->anggaran || $rincianRekening->realisasi) {
-                        $rincianRekening->tanggal_pelaporan = $model->tanggal_pelaporan;
-                        if (!($flag = $rincianRekening->save(false))) {
-                            $transaction->rollBack();
-                            break;
-                        }
+                    // if ($rincianRekening->anggaran || $rincianRekening->realisasi)
+                    $rincianRekening->tanggal_pelaporan = $model->tanggal_pelaporan;
+                    if (!($flag = $rincianRekening->save(false))) {
+                        $transaction->rollBack();
+                        break;
                     }
                 }
-                // }
                 if ($flag) {
                     $transaction->commit();
                     return 1;
-                    return $this->redirect(['view', 'id' => $model->id]);
                 }
             } catch (Exception $e) {
                 $transaction->rollBack();
                 return 0;
             }
-
-
-            // if ($model->save()) {
-            //     return 1;
-            // } else {
-            //     return 0;
-            // }
         } else {
             return $this->renderAjax('_form', [
                 'model' => $model,

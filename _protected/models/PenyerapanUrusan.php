@@ -28,6 +28,8 @@ class PenyerapanUrusan extends \yii\db\ActiveRecord
         return 'penyerapan_urusan';
     }
 
+    public $kd_urbid;
+
     /**
      * {@inheritdoc}
      */
@@ -39,6 +41,7 @@ class PenyerapanUrusan extends \yii\db\ActiveRecord
             [['tanggal_pelaporan'], 'safe'],
             [['anggaran', 'realisasi'], 'number'],
             [['bulan'], 'string', 'max' => 6],
+            [['kd_urbid'], 'string'],
             [['pemda_id'], 'string', 'max' => 5],
         ];
     }
@@ -59,6 +62,53 @@ class PenyerapanUrusan extends \yii\db\ActiveRecord
             'kd_bidang' => 'Kd Bidang',
             'anggaran' => 'Anggaran',
             'realisasi' => 'Realisasi',
+            'kd_urbid' => 'Urusan Pemerintahan',
         ];
+    }
+
+    public function beforeValidate()
+    {
+        if (!parent::beforeValidate()) {
+            return false;
+        }
+
+        $this->setFromStringToDecimal();
+
+        return true;
+    }
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        // ...custom code here...
+        $this->setFromStringToDecimal();
+        $this->setUrbidFromKdUrbid();
+        return true;
+    }
+
+    public function setUrbidFromKdUrbid()
+    {
+        if ($this->kd_urbid) {
+            list($this->kd_urusan, $this->kd_bidang) = explode(".", $this->kd_urbid);
+        }
+    }
+
+    public function setFromStringToDecimal()
+    {
+        if ($this->anggaran) $this->comaToDecimal('anggaran');
+        if ($this->realisasi) $this->comaToDecimal('realisasi');
+    }
+
+    private function comaToDecimal($attribute)
+    {
+        $this->{$attribute} = str_replace(',', '.', $this->{$attribute});
+    }
+
+    public function getRefBidang()
+    {
+        return $this->hasOne(RefBidang::class, ['kd_urusan' => 'kd_urusan', 'kd_bidang' => 'kd_bidang']);
     }
 }

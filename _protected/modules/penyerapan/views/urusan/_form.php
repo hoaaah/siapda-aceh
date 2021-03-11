@@ -1,45 +1,126 @@
 <?php
 
+use kartik\date\DatePicker;
+use kartik\select2\Select2;
+use kidzen\dynamicform\DynamicFormWidget;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\widgets\MaskedInput;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\PenyerapanUrusan */
+/* @var $model app\models\PenyerapanRekening */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="penyerapan-urusan-form">
+<div class="penyerapan-rekening-form">
 
-    <?php $form = ActiveForm::begin(['id' => $model->formName()]); ?>
 
-    <?= $form->field($model, 'bulan')->textInput(['maxlength' => true]) ?>
+    <?php $form = ActiveForm::begin(['id' => 'dynamic-form']); ?>
 
-    <?= $form->field($model, 'perwakilan_id')->textInput() ?>
+    <div class="well text-danger">
+        <?= $form->field($model, 'tanggal_pelaporan')->widget(\yii\jui\DatePicker::classname(), [
+            'language' => 'id',
+            'dateFormat' => 'yyyy-MM-dd',
+            'options' => ['class' => 'form-control']
+        ]) ?>
+        <p>Isi informasi tanggal cut-off dengan tanggal periode pelaporan dari LRA yang ada.</p>
+    </div>
 
-    <?= $form->field($model, 'province_id')->textInput() ?>
 
-    <?= $form->field($model, 'pemda_id')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'tanggal_pelaporan')->textInput() ?>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4><i class="glyphicon glyphicon-envelope"></i> Urusan Pemerintahan</h4>
+        </div>
+        <div class="panel-body">
+            <?php DynamicFormWidget::begin([
+                'widgetContainer' => 'dynamicform_wrapper', // required: only alphanumeric characters plus "_" [A-Za-z0-9_]
+                'widgetBody' => '.container-items', // required: css class selector
+                'widgetItem' => '.item', // required: css class
+                'limit' => 34, // the maximum times, an element can be cloned (default 999)
+                'min' => 1, // 0 or 1 (default 1)
+                'insertButton' => '.add-item', // css class
+                'deleteButton' => '.remove-item', // css class
+                'model' => $modelRekening[$urbid[0]['kd_urbid']],
+                'formId' => 'dynamic-form',
+                'formFields' => [
+                    'kd_urbid',
+                    'anggaran',
+                    'realisasi',
+                ],
+            ]); ?>
 
-    <?= $form->field($model, 'kd_urusan')->textInput() ?>
+            <div class="container-items">
+                <!-- widgetContainer -->
+                <?php foreach ($modelRekening as $i => $rincianRekening) : ?>
+                    <div class="item card panel-default">
+                        <!-- widgetBody -->
+                        <div class="panel-heading">
+                            <h3 class="panel-title pull-left"> <?= $urbidArrayList[$rincianRekening->kd_urbid] ?></h3>
+                            <div class="pull-right">
+                                <button type="button" class="add-item btn btn-success btn-xs"><i class="glyphicon glyphicon-plus"></i></button>
+                                <button type="button" class="remove-item btn btn-danger btn-xs"><i class="glyphicon glyphicon-minus"></i></button>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="panel-body">
+                            <?php
+                            // necessary for update action.
+                            if (!$rincianRekening->isNewRecord) {
+                                echo Html::activeHiddenInput($rincianRekening, "[{$i}]id");
+                            }
+                            ?>
+                            <?= $form->field($rincianRekening, "[{$i}]kd_urbid")->widget(Select2::class, [
+                                'data' => $urbidArrayList,
+                                'disabled' => true,
+                            ]) ?>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <?= $form->field($rincianRekening, "[{$i}]anggaran", ['enableClientValidation' => false])->widget(MaskedInput::class, [
+                                        'clientOptions' => [
+                                            'alias' =>  'numeric',
+                                            'groupSeparator' => '.',
+                                            'radixPoint' => ',',
+                                            'autoGroup' => true,
+                                            'removeMaskOnSubmit' => true,
+                                        ],
+                                    ]) ?>
+                                </div>
+                                <div class="col-sm-6">
+                                    <?= $form->field($rincianRekening, "[{$i}]realisasi", ['enableClientValidation' => false])->widget(MaskedInput::class, [
+                                        'clientOptions' => [
+                                            'alias' =>  'numeric',
+                                            'groupSeparator' => '.',
+                                            'radixPoint' => ',',
+                                            'autoGroup' => true,
+                                            'removeMaskOnSubmit' => true,
+                                        ],
+                                    ]) ?>
+                                </div>
+                            </div><!-- .row -->
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <?php DynamicFormWidget::end(); ?>
+        </div>
+    </div>
 
-    <?= $form->field($model, 'kd_bidang')->textInput() ?>
-
-    <?= $form->field($model, 'anggaran')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'realisasi')->textInput(['maxlength' => true]) ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?= Html::submitButton('<i class="fa fa-plus"></i>  Simpan', ['id' => 'submit-button', 'class' => 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
 
 </div>
-<?php $this->registerJs(<<<JS
-    $('form#{$model->formName()}').on('beforeSubmit',function(e)
+<?php
+$this->registerJs(
+    <<<JS
+    $('form#dynamic-form').on('beforeSubmit',function(e)
     {
+        $("#submit-button").attr("disabled", "disabled");
+        $("#submit-button").html('<i class="fa fa-spinner fa-spin"></i> Simpan');
         var \$form = $(this);
         $.post(
             \$form.attr("action"), //serialize Yii2 form 
@@ -52,13 +133,41 @@ use yii\widgets\ActiveForm;
                     $.pjax.reload({container:'#penyerapan-urusan-pjax'});
                 }else
                 {
+                    $("#submit-button").removeAttr("disabled");
+                    $("#submit-button").html('<i class="fa fa-plus"></i> Simpan');
                     $("#message").html(result);
+                    $.notify({message: result}, {type: 'danger', z_index: 10031})
                 }
             }).fail(function(){
-                console.log("server error");
+                $("#submit-button").removeAttr("disabled");
+                $("#submit-button").html('<i class="fa fa-plus"></i> Simpan');
+                $.notify({message: "Server Error, refresh and try again."}, {type: 'danger', z_index: 10031})
             });
         return false;
     });
+
+    $(".dynamicform_wrapper").on("beforeInsert", function(e, item) {
+        console.log("beforeInsert");
+    });
+
+    $(".dynamicform_wrapper").on("afterInsert", function(e, item) {
+        console.log("afterInsert");
+    });
+
+    $(".dynamicform_wrapper").on("beforeDelete", function(e, item) {
+        if (! confirm("Are you sure you want to delete this item?")) {
+            return false;
+        }
+        return true;
+    });
+
+    $(".dynamicform_wrapper").on("afterDelete", function(e) {
+        console.log("Deleted item!");
+    });
+
+    $(".dynamicform_wrapper").on("limitReached", function(e, item) {
+        alert("Limit reached");
+    });    
 JS
 );
 ?>

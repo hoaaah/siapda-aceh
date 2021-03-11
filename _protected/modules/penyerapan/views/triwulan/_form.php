@@ -18,11 +18,16 @@ use yii\widgets\MaskedInput;
 
     <?php $form = ActiveForm::begin(['id' => 'dynamic-form']); ?>
 
-    <?= $form->field($model, 'tanggal_pelaporan')->widget(\yii\jui\DatePicker::classname(), [
-        'language' => 'id',
-        'dateFormat' => 'yyyy-MM-dd',
-        'options' => ['class' => 'form-control']
-    ]) ?>
+    <div class="well text-danger">
+        <?= $form->field($model, 'tanggal_pelaporan')->widget(\yii\jui\DatePicker::classname(), [
+            'language' => 'id',
+            'dateFormat' => 'yyyy-MM-dd',
+            'options' => ['class' => 'form-control', 'readonly' => true]
+        ]) ?>
+        <p>Isi informasi tanggal cut-off dengan tanggal periode pelaporan dari LRA yang ada.</p>
+    </div>
+
+
 
 
     <div class="panel panel-default">

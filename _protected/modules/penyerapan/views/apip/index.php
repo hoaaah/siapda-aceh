@@ -23,6 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'hover' => true,
         // 'resizableColumns' => true,
         'panel' => ['type' => 'primary', 'heading' => 'Anggaran dan Realisasi Per Jenis'],
+        'formatter' => ['class' => 'yii\i18n\Formatter', 'nullDisplay' => '0'],
         'responsiveWrap' => false,
         'toolbar' => [
             [
@@ -42,7 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         [''],
                         ['data-pjax' => 1, 'class' => 'btn btn-default', 'title' => 'Reset Grid']
                     ) .
-                    '{toggleData}' .
+                    // '{toggleData}' .
                     '{export}'
             ],
         ],
@@ -72,7 +73,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
             [
                 'class' => 'kartik\grid\ActionColumn',
-                'template' => '{update} {delete}',
+                'template' => '{update}', // {delete}
                 'noWrap' => true,
                 'vAlign' => 'top',
                 'buttons' => [
@@ -109,19 +110,20 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= GridView::widget([
         'id' => 'penyerapan-urusan',
-        'dataProvider' => $dataProvider,
+        'dataProvider' => $dataProviderUrusan,
         // 'export' => true,
         'responsive' => true,
         'hover' => true,
         // 'resizableColumns' => true,
         'panel' => ['type' => 'primary', 'heading' => 'Anggaran dan Realisasi Per Urusan'],
+        'formatter' => ['class' => 'yii\i18n\Formatter', 'nullDisplay' => '0'],
         'responsiveWrap' => false,
         'toolbar' => [
             [
                 'content' =>
                 Html::a(
                     '<i class="glyphicon glyphicon-plus"></i> Input Data Urusan',
-                    ['create-urusan'],
+                    ['/penyerapan/urusan/create'],
                     [
                         'class' => 'btn btn-success',
                         'data-toggle' => "modal",
@@ -129,7 +131,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'data-title' => "Input Data Urusan",
                     ]
                 ) .
-                    '{toggleData}' .
+                    // '{toggleData}' .
                     '{export}'
             ],
         ],
@@ -152,7 +154,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'tanggal_pelaporan',
                 'group' => true,
             ],
-            'refRek3.nm_rek_3',
+            'refBidang.nm_bidang',
             'anggaran:decimal',
             'realisasi:decimal',
 
@@ -200,6 +202,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'hover' => true,
         // 'resizableColumns' => true,
         'panel' => ['type' => 'primary', 'heading' => 'Anggaran dan Realisasi Per Jenis Per Triwulan'],
+        'formatter' => ['class' => 'yii\i18n\Formatter', 'nullDisplay' => '0'],
         'responsiveWrap' => false,
         'toolbar' => [
             [
@@ -214,7 +217,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'data-title' => "Input Data Triwulan",
                     ]
                 ) .
-                    '{toggleData}' .
+                    // '{toggleData}' .
                     '{export}'
             ],
         ],
@@ -238,12 +241,43 @@ $this->params['breadcrumbs'][] = $this->title;
                 'group' => true,
             ],
             'refRek3.nm_rek_3',
-            // 'anggaran:decimal',
-            // 'realisasi:decimal',
+            [
+                'label' => 'TW I',
+                'hAlign' => 'right',
+                'value' => function ($model) {
+                    $percetage = (floatval($model->realisasi_tw1) / floatval($model->anggaran_tw1)) * 100;
+                    return number_format($model->realisasi_tw1) . "/" . number_format($model->anggaran_tw1) . " ($percetage %)";
+                }
+            ],
+            [
+                'label' => 'TW II',
+                'hAlign' => 'right',
+                'value' => function ($model) {
+                    $percetage = (floatval($model->realisasi_tw2) / floatval($model->anggaran_tw2)) * 100;
+                    return number_format($model->realisasi_tw2) . "/" . number_format($model->anggaran_tw2) . " ($percetage %)";
+                }
+            ],
+            [
+                'label' => 'TW III',
+                'hAlign' => 'right',
+                'value' => function ($model) {
+                    $percetage = (floatval($model->realisasi_tw3) / floatval($model->anggaran_tw3)) * 100;
+                    return number_format($model->realisasi_tw3) . "/" . number_format($model->anggaran_tw3) . " ($percetage %)";
+                }
+            ],
+            [
+                'label' => 'TW IV',
+                'hAlign' => 'right',
+                'value' => function ($model) {
+                    $percetage = (floatval($model->realisasi_tw4) / floatval($model->anggaran_tw4)) * 100;
+                    return number_format($model->realisasi_tw4) . "/" . number_format($model->anggaran_tw4) . " ($percetage %)";
+                }
+            ],
 
             [
                 'class' => 'kartik\grid\ActionColumn',
-                'template' => '{update} {delete}',
+                'template' => '{update}', // {delete}
+                'controller' => 'triwulan',
                 'noWrap' => true,
                 'vAlign' => 'top',
                 'buttons' => [

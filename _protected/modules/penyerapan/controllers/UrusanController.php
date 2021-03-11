@@ -2,14 +2,19 @@
 
 namespace app\modules\penyerapan\controllers;
 
+use app\models\Model;
 use Yii;
 use app\models\PenyerapanUrusan;
+use app\models\RefPemda;
 use app\modules\penyerapan\models\PenyerapanUrusanSearch;
+use Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
+
 class UrusanController extends Controller
 {
     /**
@@ -28,26 +33,26 @@ class UrusanController extends Controller
     }
 
     // Set Tahun
-    protected function getTahun(){
-        if(Yii::$app->session->get('tahun'))
-        {
+    protected function getTahun()
+    {
+        if (Yii::$app->session->get('tahun')) {
             $tahun = Yii::$app->session->get('tahun');
-        }ELSE{
+        } else {
             $tahun = DATE('Y');
         }
         return $tahun;
     }
 
     // Set Bulan
-    protected function getBulan(){
-        if(Yii::$app->session->get('bulan'))
-        {
+    protected function getBulan()
+    {
+        if (Yii::$app->session->get('bulan')) {
             $tahun = Yii::$app->session->get('bulan');
-        }ELSE{
+        } else {
             $tahun = DATE('m');
         }
-        return substr("0".$tahun, -2);
-    }    
+        return substr("0" . $tahun, -2);
+    }
 
     /**
      * Lists all PenyerapanUrusan models.
@@ -73,7 +78,7 @@ class UrusanController extends Controller
      */
     public function actionView($id)
     {
-        
+
         return $this->renderAjax('view', [
             'model' => $this->findModel($id),
         ]);
@@ -89,23 +94,63 @@ class UrusanController extends Controller
         // global parameters
         $tahun = $this->getTahun();
         $bulan = $this->getBulan();
-        $tahunBulan = $tahun.$bulan;
+        $tahunBulan = $tahun . $bulan;
+
+        $pemda = null;
+        if (Yii::$app->user->identity->pemda_id) {
+            $pemda = RefPemda::findOne(['id' => Yii::$app->user->identity->pemda_id]);
+        }
+
+        $urbid = Yii::$app->db->createCommand("SELECT CONCAT(kd_urusan, '.', kd_bidang) AS kd_urbid, CONCAT(kd_urusan, '.', kd_bidang, ' ', nm_bidang) AS nm_bidang FROM ref_bidang ")->queryAll();
+        $urbidArrayList = ArrayHelper::map($urbid, 'kd_urbid', 'nm_bidang');
 
         $model = new PenyerapanUrusan();
-        $model->bulan = $this->tahun.$this->bulan;
+        $model->bulan = $this->tahun . $this->bulan;
         $model->perwakilan_id = $pemda->perwakilan_id;
         $model->province_id = $pemda->province_id;
         $model->pemda_id = $pemda->id;
 
+        // $modelRekening = [new PenyerapanRekening];
+        $modelRekening = [];
+        $i = 0;
+        foreach ($urbid as $value) {
+            $modelRekening[$value['kd_urbid']] = new PenyerapanUrusan();
+            $modelRekening[$value['kd_urbid']]->setAttributes($model->attributes);
+            $modelRekening[$value['kd_urbid']]->kd_urbid = $value['kd_urbid'];
+            $i++;
+        }
+
         if ($model->load(Yii::$app->request->post())) {
-            IF($model->save()){
-                return 1;
-            }ELSE{
+            // $modelRekening = Model::createMultiple(PenyerapanRekening::class);
+            Model::loadMultiple($modelRekening, Yii::$app->request->post());
+
+            // return var_dump(Yii::$app->request->post());
+
+            $transaction = \Yii::$app->db->beginTransaction();
+            try {
+                $flag = null;
+                foreach ($modelRekening as $key => $rincianRekening) {
+                    // if ($rincianRekening->anggaran || $rincianRekening->realisasi)
+                    $rincianRekening->tanggal_pelaporan = $model->tanggal_pelaporan;
+                    if (!($flag = $rincianRekening->save(false))) {
+                        $transaction->rollBack();
+                        break;
+                    }
+                }
+                if ($flag) {
+                    $transaction->commit();
+                    return 1;
+                }
+            } catch (Exception $e) {
+                $transaction->rollBack();
                 return 0;
             }
         } else {
             return $this->renderAjax('_form', [
                 'model' => $model,
+                'modelRekening' => $modelRekening,
+                'urbidArrayList' => $urbidArrayList,
+                'urbid' => $urbid
             ]);
         }
     }
@@ -121,14 +166,14 @@ class UrusanController extends Controller
         // global parameters
         $tahun = $this->getTahun();
         $bulan = $this->getBulan();
-        $tahunBulan = $tahun.$bulan;
+        $tahunBulan = $tahun . $bulan;
 
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post())) {
-            IF($model->save()){
+            if ($model->save()) {
                 return 1;
-            }ELSE{
+            } else {
                 return 0;
             }
         } else {
@@ -170,17 +215,17 @@ class UrusanController extends Controller
     }
 
 
-    protected function cekakses(){
+    protected function cekakses()
+    {
 
-        IF(Yii::$app->user->identity){
-            $akses = \app\models\RefUserMenu::find()->where(['kd_user' => Yii::$app->user->identity->kd_user, 'menu' => 401])->one();
-            IF($akses){
+        if (Yii::$app->user->identity) {
+            $akses = \app\models\RefUserMenu::find()->where(['kd_user' => Yii::$app->user->identity->kd_user, 'menu' => 310])->one();
+            if ($akses) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
         return false;
-    }  
-
+    }
 }

@@ -16,6 +16,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\VarDumper;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
+
 class TriwulanController extends Controller
 {
     /**
@@ -34,26 +35,26 @@ class TriwulanController extends Controller
     }
 
     // Set Tahun
-    protected function getTahun(){
-        if(Yii::$app->session->get('tahun'))
-        {
+    protected function getTahun()
+    {
+        if (Yii::$app->session->get('tahun')) {
             $tahun = Yii::$app->session->get('tahun');
-        }ELSE{
+        } else {
             $tahun = DATE('Y');
         }
         return $tahun;
     }
 
     // Set Bulan
-    protected function getBulan(){
-        if(Yii::$app->session->get('bulan'))
-        {
+    protected function getBulan()
+    {
+        if (Yii::$app->session->get('bulan')) {
             $tahun = Yii::$app->session->get('bulan');
-        }ELSE{
+        } else {
             $tahun = DATE('m');
         }
-        return substr("0".$tahun, -2);
-    }    
+        return substr("0" . $tahun, -2);
+    }
 
     /**
      * Lists all PenyerapanTriwulan models.
@@ -79,7 +80,7 @@ class TriwulanController extends Controller
      */
     public function actionView($id)
     {
-        
+
         return $this->renderAjax('view', [
             'model' => $this->findModel($id),
         ]);
@@ -95,23 +96,24 @@ class TriwulanController extends Controller
         // global parameters
         $tahun = $this->getTahun();
         $bulan = $this->getBulan();
-        $tahunBulan = $tahun.$bulan;
+        $tahunBulan = $tahun . $bulan;
 
         $pemda = null;
         if (Yii::$app->user->identity->pemda_id) {
             $pemda = RefPemda::findOne(['id' => Yii::$app->user->identity->pemda_id]);
         }
 
+        $penyerapanRekeningPeriodeIni = PenyerapanRekening::find()->select('MAX(tanggal_pelaporan) AS tanggal_pelaporan')->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan])->one();
+        if (!isset($penyerapanRekeningPeriodeIni->tanggal_pelaporan)) return "Isi terlebih dahulu data penyerapan rekening untuk periode ini";
+
         $rekening3 = Yii::$app->db->createCommand("SELECT CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3) AS rek3, CONCAT(kd_rek_1, '.', kd_rek_2, '.', kd_rek_3, ' ', nm_rek_3) AS nm_rek_3 FROM ref_rek_3 WHERE kd_rek_1 IN (4,5,6) AND (kd_rek_1, kd_rek_2) NOT IN ((6,3))")->queryAll();
         $rekening3ArrayList = ArrayHelper::map($rekening3, 'rek3', 'nm_rek_3');
 
-        $penyerapanRekeningPeriodeIni = PenyerapanRekening::find()->select('MAX(tanggal_pelaporan) AS tanggal_pelaporan')->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan])->one();
-        if(!$penyerapanRekeningPeriodeIni) return "Isi terlebih dahulu data penyerapan rekening untuk periode ini";
-
-        $penyerapanRekeningPeriodeBulan = PenyerapanRekening::find()->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan, 'tanggal_pelaporan' => $penyerapanRekeningPeriodeIni->tanggal_pelaporan])->all();
+        $penyerapanRekeningPeriodeBulan = PenyerapanRekening::find()->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan, 'tanggal_pelaporan' => $penyerapanRekeningPeriodeIni->tanggal_pelaporan])
+            ->andWhere("anggaran IS NOT NULL")->all();
 
         $model = new PenyerapanTriwulan();
-        $model->bulan = $this->tahun.$this->bulan;
+        $model->bulan = $this->tahun . $this->bulan;
         $model->perwakilan_id = $pemda->perwakilan_id;
         $model->province_id = $pemda->province_id;
         $model->pemda_id = $pemda->id;
@@ -188,20 +190,34 @@ class TriwulanController extends Controller
         // global parameters
         $tahun = $this->getTahun();
         $bulan = $this->getBulan();
-        $tahunBulan = $tahun.$bulan;
+        $tahunBulan = $tahun . $bulan;
 
         $model = $this->findModel($id);
 
+        $penyerapanRekening = PenyerapanRekening::findOne([
+            'bulan' => $model->bulan,
+            'pemda_id' => $model->pemda_id,
+            'kd_rek_1' => $model->kd_rek_1,
+            'kd_rek_2' => $model->kd_rek_2,
+            'kd_rek_3' => $model->kd_rek_3,
+            'kd_rek_4' => $model->kd_rek_4,
+            'kd_rek_5' => $model->kd_rek_5,
+            'kd_rek_6' => $model->kd_rek_6,
+        ]);
+
+        $model->anggaran = $penyerapanRekening->anggaran;
+        $model->realisasi = $penyerapanRekening->realisasi;
+
         if ($model->load(Yii::$app->request->post())) {
-            IF($model->save()){
+            if ($model->save()) {
                 return 1;
-            }ELSE{
+            } else {
                 $return = "";
                 if ($model->errors) $return .= $this->setErrorMessage($model->errors);
                 return $return;
             }
         } else {
-            return $this->renderAjax('_form', [
+            return $this->renderAjax('_formindividu', [
                 'model' => $model,
             ]);
         }
@@ -250,17 +266,17 @@ class TriwulanController extends Controller
     }
 
 
-    protected function cekakses(){
+    protected function cekakses()
+    {
 
-        IF(Yii::$app->user->identity){
+        if (Yii::$app->user->identity) {
             $akses = \app\models\RefUserMenu::find()->where(['kd_user' => Yii::$app->user->identity->kd_user, 'menu' => 310])->one();
-            IF($akses){
+            if ($akses) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
         return false;
-    }  
-
+    }
 }
