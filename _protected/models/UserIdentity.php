@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models;
 
 use yii\db\ActiveRecord;
@@ -35,9 +36,9 @@ class UserIdentity extends ActiveRecord implements IdentityInterface
         return '{{%user}}';
     }
 
-//------------------------------------------------------------------------------------------------//
-// IDENTITY INTERFACE IMPLEMENTATION
-//------------------------------------------------------------------------------------------------//
+    //------------------------------------------------------------------------------------------------//
+    // IDENTITY INTERFACE IMPLEMENTATION
+    //------------------------------------------------------------------------------------------------//
 
     /**
      * Finds an identity by the given ID.
@@ -102,16 +103,21 @@ class UserIdentity extends ActiveRecord implements IdentityInterface
     public function getRefPerwakilan()
     {
         return $this->hasOne(RefPerwakilan::className(), ['id' => 'perwakilan_id']);
-    } 
+    }
+
+    public function getRefPemda()
+    {
+        return $this->hasOne(RefPemda::className(), ['id' => 'pemda_id']);
+    }
 
     public function getRefUser()
     {
         return $this->hasOne(RefUser::className(), ['id' => 'kd_user']);
-    }      
+    }
 
-//------------------------------------------------------------------------------------------------//
-// IMPORTANT IDENTITY HELPERS
-//------------------------------------------------------------------------------------------------//
+    //------------------------------------------------------------------------------------------------//
+    // IMPORTANT IDENTITY HELPERS
+    //------------------------------------------------------------------------------------------------//
 
     /**
      * Generates "remember me" authentication key. 
@@ -146,5 +152,4 @@ class UserIdentity extends ActiveRecord implements IdentityInterface
     {
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
-
 }
