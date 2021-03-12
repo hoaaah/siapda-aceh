@@ -314,7 +314,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'TW I',
                 'hAlign' => 'right',
                 'value' => function ($model) {
-                    $percetage = (floatval($model->realisasi_tw1) / floatval($model->anggaran_tw1)) * 100;
+                    $percetage = (floatval($model->realisasi_tw1) / floatval($model->anggaran_tw1 ?? 1)) * 100;
                     return number_format($model->realisasi_tw1) . "/" . number_format($model->anggaran_tw1) . " ($percetage %)";
                 }
             ],
@@ -322,7 +322,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'TW II',
                 'hAlign' => 'right',
                 'value' => function ($model) {
-                    $percetage = (floatval($model->realisasi_tw2) / floatval($model->anggaran_tw2)) * 100;
+                    $percetage = (floatval($model->realisasi_tw2) / floatval($model->anggaran_tw2 ?? 1)) * 100;
                     return number_format($model->realisasi_tw2) . "/" . number_format($model->anggaran_tw2) . " ($percetage %)";
                 }
             ],
@@ -330,7 +330,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'TW III',
                 'hAlign' => 'right',
                 'value' => function ($model) {
-                    $percetage = (floatval($model->realisasi_tw3) / floatval($model->anggaran_tw3)) * 100;
+                    $percetage = (floatval($model->realisasi_tw3) / floatval($model->anggaran_tw3 ?? 1)) * 100;
                     return number_format($model->realisasi_tw3) . "/" . number_format($model->anggaran_tw3) . " ($percetage %)";
                 }
             ],
@@ -338,14 +338,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'TW IV',
                 'hAlign' => 'right',
                 'value' => function ($model) {
-                    $percetage = (floatval($model->realisasi_tw4) / floatval($model->anggaran_tw4)) * 100;
+                    $percetage = (floatval($model->realisasi_tw4) / floatval($model->anggaran_tw4 ?? 1)) * 100;
                     return number_format($model->realisasi_tw4) . "/" . number_format($model->anggaran_tw4) . " ($percetage %)";
                 }
             ],
 
             [
                 'class' => 'kartik\grid\ActionColumn',
-                'template' => '{update}', // {delete}
+                'template' => '{update} {delete}', // 
                 'controller' => 'triwulan',
                 'noWrap' => true,
                 'vAlign' => 'top',
