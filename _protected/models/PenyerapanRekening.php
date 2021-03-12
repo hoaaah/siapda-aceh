@@ -130,4 +130,14 @@ class PenyerapanRekening extends \yii\db\ActiveRecord
     {
         return $this->hasOne(RefRek3::class, ['kd_rek_1' => 'kd_rek_1', 'kd_rek_2' => 'kd_rek_2', 'kd_rek_3' => 'kd_rek_3']);
     }
+
+    public function getRefRek2()
+    {
+        return $this->hasOne(RefRek2::class, ['kd_rek_1' => 'kd_rek_1', 'kd_rek_2' => 'kd_rek_2']);
+    }
+
+    public function getRefRek1()
+    {
+        return $this->hasOne(RefRek1::class, ['kd_rek_1' => 'kd_rek_1']);
+    }
 }

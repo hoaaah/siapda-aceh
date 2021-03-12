@@ -15,6 +15,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\web\Response;
 
 /* (C) Copyright 2017 Heru Arief Wijaya (http://belajararief.com/) untuk Indonesia.*/
 
@@ -68,6 +69,25 @@ class ApipController extends Controller
         $bulan = $this->getBulan();
         $tahunBulan = $tahun . $bulan;
 
+        $pemda = null;
+        if (Yii::$app->user->identity->pemda_id) {
+            $pemda = RefPemda::findOne(['id' => Yii::$app->user->identity->pemda_id]);
+        }
+
+        $anggaranPenyerapan = null;
+
+        $penyerapanRekeningPeriodeIni = PenyerapanRekening::find()->select('MAX(tanggal_pelaporan) AS tanggal_pelaporan')->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan])->one();
+        if (isset($penyerapanRekeningPeriodeIni->tanggal_pelaporan)) {
+            $anggaranPenyerapan = PenyerapanRekening::find()->select("tanggal_pelaporan, kd_rek_1, sum(
+                CASE
+                    WHEN kd_rek_1 = 6 AND kd_rek_2 = 1 THEN anggaran
+                    WHEN kd_rek_1 = 6 AND kd_rek_2 = 2 THEN -anggaran
+                    ELSE anggaran
+                END
+            ) AS anggaran")->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan, 'tanggal_pelaporan' => $penyerapanRekeningPeriodeIni->tanggal_pelaporan])
+                ->groupBy('tanggal_pelaporan, kd_rek_1')->all();
+        };
+
         $searchModel = new PenyerapanRekeningSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $dataProvider->query->andWhere([
@@ -99,6 +119,8 @@ class ApipController extends Controller
             'Tahun' => $this->getTahun(),
             'dataProviderTriwulan' => $dataProviderTriwulan,
             'dataProviderUrusan' => $dataProviderUrusan,
+            'penyerapanRekeningPeriodeIni' => $penyerapanRekeningPeriodeIni,
+            'anggaranPenyerapan' => $anggaranPenyerapan
         ]);
     }
 
@@ -258,6 +280,35 @@ class ApipController extends Controller
         }
     }
 
+    /**
+     * Delete multiple existing RefPermasalahanPenyerapan model.
+     * For ajax request will return json object
+     * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionBulkDelete()
+    {
+        $request = Yii::$app->request;
+        $pks = explode(',', $request->post('pks')); // Array or selected records primary keys
+        foreach ($pks as $pk) {
+            $model = $this->findModel($pk);
+            $model->delete();
+        }
+
+        if ($request->isAjax) {
+            /*
+            *   Process for ajax request
+            */
+            // Yii::$app->response->format = Response::FORMAT_JSON;
+            // return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+        } else {
+            /*
+            *   Process for non-ajax request
+            */
+            return $this->redirect(['index']);
+        }
+    }
 
     protected function cekakses()
     {

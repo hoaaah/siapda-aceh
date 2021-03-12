@@ -22,7 +22,51 @@ $this->params['breadcrumbs'][] = $this->title;
         'responsive' => true,
         'hover' => true,
         // 'resizableColumns' => true,
-        'panel' => ['type' => 'primary', 'heading' => 'Anggaran dan Realisasi Per Jenis'],
+        'panel' => [
+            'type' => 'primary',
+            'heading' => 'Anggaran dan Realisasi Per Jenis',
+            'before' => $anggaranPenyerapan ? '
+                <div class="col-md-2">
+                    <!-- small box -->
+                    <div class="small-box bg-aqua">
+                            <div class="inner">
+                                <h3>Pendapatan</h3>
+
+                                <p>Rp' . number_format($anggaranPenyerapan[0]->anggaran, 2, ',', '.') . '</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-download"></i>
+                            </div>
+                        </div>
+                </div>
+                <div class="col-md-2">
+                    <!-- small box -->
+                    <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3>Belanja</h3>
+
+                                <p>Rp' . number_format($anggaranPenyerapan[1]->anggaran, 2, ',', '.') . '</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </div>
+                        </div>
+                </div>
+                <div class="col-md-3">
+                    <!-- small box -->
+                    <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3>Pembiayaan Netto</h3>
+
+                                <p>Rp' . number_format($anggaranPenyerapan[2]->anggaran, 2, ',', '.') . '</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-refresh"></i>
+                            </div>
+                        </div>
+                </div>
+            ' : '',
+        ],
         'formatter' => ['class' => 'yii\i18n\Formatter', 'nullDisplay' => '0'],
         'responsiveWrap' => false,
         'toolbar' => [
@@ -58,19 +102,24 @@ $this->params['breadcrumbs'][] = $this->title;
         // 'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'kartik\grid\SerialColumn'],
-            // [
-            //     'attribute' => 'bulan',
-            //     'group' => true,
-            // ],
             [
                 'attribute' => 'tanggal_pelaporan',
                 'format' => 'date',
                 'group' => true,
             ],
+            [
+                'attribute' => 'refRek1.nm_rek_1',
+                'group' => true,
+                // 'groupedRow' => true
+            ],
+            [
+                'attribute' => 'refRek2.nm_rek_2',
+                'group' => true,
+                // 'groupedRow' => true
+            ],
             'refRek3.nm_rek_3',
             'anggaran:decimal',
             'realisasi:decimal',
-
             [
                 'class' => 'kartik\grid\ActionColumn',
                 'template' => '{update}', // {delete}
@@ -153,6 +202,11 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'tanggal_pelaporan',
                 'group' => true,
+            ],
+            [
+                'attribute' => 'refUrusan.nm_urusan',
+                'group' => true,
+                // 'groupedRow' => true
             ],
             'refBidang.nm_bidang',
             'anggaran:decimal',
@@ -239,6 +293,21 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'tanggal_pelaporan',
                 'group' => true,
+            ],
+            [
+                'attribute' => 'tanggal_pelaporan',
+                'format' => 'date',
+                'group' => true,
+            ],
+            [
+                'attribute' => 'refRek1.nm_rek_1',
+                'group' => true,
+                // 'groupedRow' => true
+            ],
+            [
+                'attribute' => 'refRek2.nm_rek_2',
+                'group' => true,
+                // 'groupedRow' => true
             ],
             'refRek3.nm_rek_3',
             [

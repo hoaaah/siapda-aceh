@@ -111,4 +111,9 @@ class PenyerapanUrusan extends \yii\db\ActiveRecord
     {
         return $this->hasOne(RefBidang::class, ['kd_urusan' => 'kd_urusan', 'kd_bidang' => 'kd_bidang']);
     }
+
+    public function getRefUrusan()
+    {
+        return $this->hasOne(RefUrusan::class, ['kd_urusan' => 'kd_urusan']);
+    }
 }
