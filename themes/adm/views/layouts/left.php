@@ -32,26 +32,26 @@
                         // ['label' => 'Periode', 'icon' => 'circle-o', 'url' => ['/parameter/periode'], 'visible' => akses(201)],
                         // ['label' => 'Bagan Akun Standar', 'icon' => 'circle-o', 'url' => ['/parameter/bas'], 'visible' => akses(202)],
                         ['label' => 'Pemda', 'icon' => 'circle-o', 'url' => ['/parameter/pemda'], 'visible' => akses(203)],
-                        ['label' => 'Opini', 'icon' => 'circle-o', 'url' => ['/parameter/opini'], /* 'visible' => akses(205) */],
-                        ['label' => 'Perwakilan', 'icon' => 'circle-o', 'url' => ['/parameter/perwakilan'], /* 'visible' => akses(205) */],
+                        ['label' => 'Opini', 'icon' => 'circle-o', 'url' => ['/parameter/opini'],  'visible' => akses(201)],
+                        ['label' => 'Perwakilan', 'icon' => 'circle-o', 'url' => ['/parameter/perwakilan'], 'visible' => akses(202)],
                         // ['label' => 'Jenis Transfer', 'icon' => 'circle-o', 'url' => ['/parameter/transfer'], 'visible' => akses(204)],
                         // ['label' => 'Wilayah', 'icon' => 'circle-o', 'url' => ['/parameter/wilayah'], 'visible' => akses(205)],
                     ],],
                     ['label' => 'Data Entry', 'icon' => 'fa fa-edit', 'url' => '#', 'visible' => !Yii::$app->user->isGuest, 'items' =>
                     [
-                        ['label' => 'Data Capture', 'icon' => 'circle-o', 'url' => ['/dataentry/datacapture'], /* 'visible' => akses(205) */],
-                        ['label' => 'Surat Tugas', 'icon' => 'circle-o', 'url' => ['/dataentry/st'], /* 'visible' => akses(205) */],
-                        ['label' => 'Audit', 'icon' => 'circle-o', 'url' => ['/parameter/datacapture'], /* 'visible' => akses(205) */],
-                        ['label' => 'SPIP', 'icon' => 'circle-o', 'url' => '#', 'visible' => 309, 'items'  =>
+                        ['label' => 'Data Capture', 'icon' => 'circle-o', 'url' => ['/dataentry/datacapture'], 'visible' => akses(302)],
+                        ['label' => 'Surat Tugas', 'icon' => 'circle-o', 'url' => ['/dataentry/st'], 'visible' => akses(303)],
+                        // ['label' => 'Audit', 'icon' => 'circle-o', 'url' => ['/parameter/datacapture'], /* 'visible' => akses(205) */],
+                        // ['label' => 'SPIP', 'icon' => 'circle-o', 'url' => '#', 'visible' => 309, 'items'  =>
+                        // [
+                        //     ['label' => 'Perkada/Satgas', 'icon' => 'circle-o', 'url' => ['/dataentry/spip'], 'visible' => akses(309)],
+                        //     ['label' => 'Target', 'icon' => 'circle-o', 'url' => ['/dataentry/spiptarget'], 'visible' => akses(309)],
+                        //     ['label' => 'Laporan Evaluasi', 'icon' => 'circle-o', 'url' => ['/dataentry/spipeval'], 'visible' => akses(309)],
+                        // ],],
+                        ['label' => 'Dana Desa', 'icon' => 'circle-o', 'url' => '#', 'visible' => akses(305), 'items'  =>
                         [
-                            ['label' => 'Perkada/Satgas', 'icon' => 'circle-o', 'url' => ['/dataentry/spip'], 'visible' => akses(309)],
-                            ['label' => 'Target', 'icon' => 'circle-o', 'url' => ['/dataentry/spiptarget'], 'visible' => akses(309)],
-                            ['label' => 'Laporan Evaluasi', 'icon' => 'circle-o', 'url' => ['/dataentry/spipeval'], 'visible' => akses(309)],
-                        ],],
-                        ['label' => 'Dana Desa', 'icon' => 'circle-o', 'url' => '#', 'visible' => 1, 'items'  =>
-                        [
-                            ['label' => 'Alokasi/Realisasi Dana Desa', 'icon' => 'circle-o', 'url' => ['/dataentry/danadesa'] /*, 'visible' => akses(305)*/],
-                            ['label' => 'Siskeudes', 'icon' => 'circle-o', 'url' => ['/management/menu'], 'visible' => akses(401)],
+                            ['label' => 'Alokasi/Realisasi Dana Desa', 'icon' => 'circle-o', 'url' => ['/dataentry/danadesa'], 'visible' => akses(305)],
+                            // ['label' => 'Siskeudes', 'icon' => 'circle-o', 'url' => ['/management/menu'], 'visible' => akses(401)],
                         ],],
                         ['label' => 'Penyerapan Anggaran', 'icon' => 'circle-o', 'url' => '#', 'visible' => akses(310) || akses(311), 'items'  =>
                         [
