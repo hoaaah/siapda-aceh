@@ -110,7 +110,8 @@ class TriwulanController extends Controller
         $rekening3ArrayList = ArrayHelper::map($rekening3, 'rek3', 'nm_rek_3');
 
         $penyerapanRekeningPeriodeBulan = PenyerapanRekening::find()->where(['pemda_id' => $pemda->id, 'bulan' => $tahunBulan, 'tanggal_pelaporan' => $penyerapanRekeningPeriodeIni->tanggal_pelaporan])
-            ->andWhere("anggaran IS NOT NULL")->all();
+            // ->andWhere("anggaran IS NOT NULL")
+            ->all();
 
         $model = new PenyerapanTriwulan();
         $model->bulan = $this->tahun . $this->bulan;
@@ -142,15 +143,17 @@ class TriwulanController extends Controller
             $transaction = \Yii::$app->db->beginTransaction();
             try {
                 $flag = null;
+                $return = '';
                 // if ($flag = $model->save(false)) {
                 foreach ($modelRekening as $key => $rincianRekening) {
-                    if ($rincianRekening->anggaran || $rincianRekening->realisasi) {
-                        $rincianRekening->tanggal_pelaporan = $model->tanggal_pelaporan;
-                        if (!($flag = $rincianRekening->save(false))) {
-                            $transaction->rollBack();
-                            break;
-                        }
+                    // if ($rincianRekening->anggaran || $rincianRekening->realisasi) {
+                    $rincianRekening->tanggal_pelaporan = $model->tanggal_pelaporan;
+                    if (!($flag = $rincianRekening->save(false))) {
+                        if ($rincianRekening->errors) $return .= $this->setErrorMessage($rincianRekening->errors);
+                        $transaction->rollBack();
+                        break;
                     }
+                    // }
                 }
                 // }
                 if ($flag) {
@@ -159,7 +162,7 @@ class TriwulanController extends Controller
                 }
             } catch (Exception $e) {
                 $transaction->rollBack();
-                return 0;
+                return $return;
             }
 
 
