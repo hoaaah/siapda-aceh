@@ -41,7 +41,8 @@
         "2amigos/yii2-table-export-widget": "*",
         "2amigos/yii2-exportable-widget": "^2.0",
         "daixianceng/yii2-echarts": "*",
-        "yiisoft/yii2-httpclient": "*"
+        "yiisoft/yii2-httpclient": "*",
+        "johnitvn/yii2-ajaxcrud": "*"
     },
     "require-dev": {
         "codeception/codeception": "*",
@@ -49,8 +50,7 @@
         "yiisoft/yii2-gii": "*",
         "yiisoft/yii2-faker": "*",
         "codeception/specify": "*",
-        "codeception/verify": "*",
-        "johnitvn/yii2-ajaxcrud": "*"
+        "codeception/verify": "*"
     },
     "config": {
         "vendor-dir": "_protected/vendor",
