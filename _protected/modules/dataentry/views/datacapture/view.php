@@ -5,7 +5,7 @@ use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\bootstrap\Modal;
 use kartik\grid\GridView;
-use johnitvn\ajaxcrud\CrudAsset; 
+use johnitvn\ajaxcrud\CrudAsset;
 use johnitvn\ajaxcrud\BulkButtonWidget;
 
 
@@ -30,13 +30,16 @@ CrudAsset::register($this);
                     <div class="pull-right">
                         <!-- bg-aqua-active -->
                         <!-- <span class="info-box-icon bg-default"><i><?= $skorPemda ?></i></span> -->
-                        <?= Html::a('<i class="glyphicon glyphicon-pencil"></i>', ['pemda', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Ubah",
-                            'class'=>'btn btn-xs btn-default'
-                        ]) ?>
+                        <?= Html::a(
+                            '<i class="glyphicon glyphicon-pencil"></i>',
+                            ['pemda', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Ubah",
+                                'class' => 'btn btn-xs btn-default'
+                            ]
+                        ) ?>
                     </div>
                     <h3 class="widget-user-username"><?= $pemda->name ?></h3>
                     <h5 class="widget-user-desc"><?= $pemda['ibukota'] ?></h5>
@@ -53,7 +56,7 @@ CrudAsset::register($this);
                         <!-- /.col -->
                         <div class="col-sm-3 border-right">
                             <div class="description-block">
-                                <h5 class="description-header"><?= $evaluasi['kat_lppd'] ? $evaluasi['lppd']['name'] : "--" ?></h5>
+                                <h5 class="description-header"><?= isset($evaluasi['kat_lppd']) ? $evaluasi['lppd']['name'] : "--" ?></h5>
                                 <span class="description-text">LPPD</span>
                             </div>
                             <!-- /.description-block -->
@@ -61,7 +64,7 @@ CrudAsset::register($this);
                         <!-- /.col -->
                         <div class="col-sm-3">
                             <div class="description-block">
-                                <h5 class="description-header"><?= $evaluasi['kat_sakip'] ? $evaluasi['sakip']['name'] : "--" ?></h5>
+                                <h5 class="description-header"><?= isset($evaluasi['kat_sakip']) ? $evaluasi['sakip']['name'] : "--" ?></h5>
                                 <span class="description-text">LAKIP</span>
                             </div>
                             <!-- /.description-block -->
@@ -69,7 +72,7 @@ CrudAsset::register($this);
                         <!-- /.col -->
                         <div class="col-sm-3">
                             <div class="description-block">
-                                <h5 class="description-header"><?= $evaluasi['spip'] ? $evaluasi['spip'] : "--" ?></h5>
+                                <h5 class="description-header"><?= isset($evaluasi['spip']) ? $evaluasi['spip'] : "--" ?></h5>
                                 <span class="description-text">SPIP</span>
                             </div>
                             <!-- /.description-block -->
@@ -91,21 +94,21 @@ CrudAsset::register($this);
                                 // 'perwakilan_id',
                                 [
                                     'label' => 'APBD',
-                                    'value' => $apbd ? $apbd->no_apbd." ( $apbd->status )" : "Data APBD Belum Diisi",
+                                    'value' => $apbd ? $apbd->no_apbd . " ( $apbd->status )" : "Data APBD Belum Diisi",
                                 ],
                                 [
                                     'label' => 'Topografi',
                                     'format' => 'raw',
-                                    'value' => "Jumlah Penduduk: ".number_format($profilPemda['jumlah_penduduk'])."ribu, Luas Wilayah: ".number_format($profilPemda['luas_wilayah'])."km2",
+                                    'value' => "Jumlah Penduduk: " . number_format($profilPemda ? $profilPemda['jumlah_penduduk'] : 0) . "ribu, Luas Wilayah: " . number_format($profilPemda ? $profilPemda['luas_wilayah'] : 0) . "km2",
                                 ],
                                 [
                                     'label' => 'Rekomendasi',
                                     'format' => 'raw',
                                     // class="pull-right badge bg-red"
-                                    'value' => $rekomendasi. " ( $skorPemda )"
+                                    'value' => $rekomendasi . " ( $skorPemda )"
                                 ]
                             ],
-                        ]) ?>                    
+                        ]) ?>
                     </ul>
                 </div>
             </div>
@@ -116,7 +119,7 @@ CrudAsset::register($this);
             <!-- Profile Image -->
             <div class="box box-primary">
                 <div class="box-body box-profile">
-                    <img class="profile-user-img img-responsive img-circle" src="<?= $kada['saved_image'] ? $kada->getImageUrl() : \yii\helpers\Url::to('@web/uploads/kepala_daerah.png', false) ?>" alt="User profile picture">
+                    <img class="profile-user-img img-responsive img-circle" src="<?= $kada && $kada['saved_image'] ? $kada->getImageUrl() : \yii\helpers\Url::to('@web/uploads/kepala_daerah.png', false) ?>" alt="User profile picture">
 
                     <h3 class="profile-username text-center"><?= $kada ? $kada->nama : "---" ?></h3>
 
@@ -124,7 +127,7 @@ CrudAsset::register($this);
 
                     <ul class="list-group list-group-unbordered">
                         <li class="list-group-item">
-                            <b>Usia</b> <a class="pull-right"><?= $kada['tanggal_lahir'] ? (date('Y') - date('Y', strtotime($kada['tanggal_lahir']))) : "---" ?></a>
+                            <b>Usia</b> <a class="pull-right"><?= $kada && $kada['tanggal_lahir'] ? (date('Y') - date('Y', strtotime($kada['tanggal_lahir']))) : "---" ?></a>
                         </li>
                         <li class="list-group-item">
                             <b>Asal Partai</b> <a class="pull-right"><?= $kada ? $kada['partai'] : "---" ?></a>
@@ -138,12 +141,12 @@ CrudAsset::register($this);
             </div>
             <!-- /.box -->
         </div>
-        
+
         <div class="col-md-3">
             <!-- Profile Image -->
             <div class="box box-primary">
                 <div class="box-body box-profile">
-                    <img class="profile-user-img img-responsive img-circle" src="<?= $waKada['saved_image'] ? $waKada->getImageUrl() : \yii\helpers\Url::to('@web/uploads/kepala_daerah.png', false) ?>" alt="User profile picture">
+                    <img class="profile-user-img img-responsive img-circle" src="<?= $waKada && $waKada['saved_image'] ? $waKada->getImageUrl() : \yii\helpers\Url::to('@web/uploads/kepala_daerah.png', false) ?>" alt="User profile picture">
 
                     <h3 class="profile-username text-center"><?= $waKada ? $waKada->nama : "---" ?></h3>
 
@@ -151,7 +154,7 @@ CrudAsset::register($this);
 
                     <ul class="list-group list-group-unbordered">
                         <li class="list-group-item">
-                            <b>Usia</b> <a class="pull-right"><?= $waKada['tanggal_lahir'] ? (date('Y') - date('Y', strtotime($waKada['tanggal_lahir']))) : "---" ?></a>
+                            <b>Usia</b> <a class="pull-right"><?= $waKada && $waKada['tanggal_lahir'] ? (date('Y') - date('Y', strtotime($waKada['tanggal_lahir']))) : "---" ?></a>
                         </li>
                         <li class="list-group-item">
                             <b>Asal Partai</b> <a class="pull-right"><?= $waKada ? $waKada['partai'] : "---" ?></a>
@@ -167,386 +170,429 @@ CrudAsset::register($this);
         </div>
     </div>
 
-    <?php if($mou): 
-    if($mou->tanggal_berlaku >= date('Y-m-d')){
-        $calloutClass = "callout-info"; 
-        $today = new DateTime();
-        $tanggalBerlaku  = new DateTime($mou->tanggal_berlaku);
-        $dDiff = $today->diff($tanggalBerlaku);
-        // var_dump($dDiff->format('%R')); // use for point out relation: smaller/greater
-        // var_dump($dDiff->days);
-        if($dDiff->days <= 30) $calloutClass = "callout-warning";
-
-    }else{
-        $calloutClass = "callout-danger";
-    }
-        ?>
-    <div class="row" > <!-- MOU -->
-        <div class="pad margin no-print">
-            <div class="callout <?= $calloutClass ?>" style="margin-bottom: 0!important;">
-                <h4><i class="fa fa-info"></i> MoU No: <?= "\"$mou->no_mou\""." / "."\"$mou->no_mou_pemda\""." tentang ".$mou->judul ?> (<?= date('d-m-Y', strtotime($mou->tanggal_mou)) ." s/d ". date('d-m-Y', strtotime($mou->tanggal_berlaku)) ?>)
-                <?= Html::a('<i class="glyphicon glyphicon-pencil"></i>', ['mou', 'id' => $pemda->id],
-                [
-                    'title'=> "Input MoU Baru",
-                    'data-toggle'=>"modal",
-                    'data-target'=>"#myModal",
-                    'data-title'=>"Input MoU Baru",
-                    // 'class'=>'btn btn-xs btn-warning'
-                ]) ?>
-                </h4>
-                <?= $mou->ruang_lingkup ?>
+    <?php if ($mou) :
+        if ($mou->tanggal_berlaku >= date('Y-m-d')) {
+            $calloutClass = "callout-info";
+            $today = new DateTime();
+            $tanggalBerlaku  = new DateTime($mou->tanggal_berlaku);
+            $dDiff = $today->diff($tanggalBerlaku);
+            // var_dump($dDiff->format('%R')); // use for point out relation: smaller/greater
+            // var_dump($dDiff->days);
+            if ($dDiff->days <= 30) $calloutClass = "callout-warning";
+        } else {
+            $calloutClass = "callout-danger";
+        }
+    ?>
+        <div class="row">
+            <!-- MOU -->
+            <div class="pad margin no-print">
+                <div class="callout <?= $calloutClass ?>" style="margin-bottom: 0!important;">
+                    <h4><i class="fa fa-info"></i> MoU No: <?= "\"$mou->no_mou\"" . " / " . "\"$mou->no_mou_pemda\"" . " tentang " . $mou->judul ?> (<?= date('d-m-Y', strtotime($mou->tanggal_mou)) . " s/d " . date('d-m-Y', strtotime($mou->tanggal_berlaku)) ?>)
+                        <?= Html::a(
+                            '<i class="glyphicon glyphicon-pencil"></i>',
+                            ['mou', 'id' => $pemda->id],
+                            [
+                                'title' => "Input MoU Baru",
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Input MoU Baru",
+                                // 'class'=>'btn btn-xs btn-warning'
+                            ]
+                        ) ?>
+                    </h4>
+                    <?= $mou->ruang_lingkup ?>
+                </div>
             </div>
         </div>
-    </div>
-    <?php else:
-        echo Html::a('<i class="glyphicon glyphicon-pencil"></i> Input MoU Baru', ['mou', 'id' => $pemda->id],
-        [
-            'title'=> "Input MoU Baru",
-            'data-toggle'=>"modal",
-            'data-target'=>"#myModal",
-            'data-title'=>"Input MoU Baru",
-            'class'=>'btn btn-lg btn-info'
-        ]);
-        endif;
+    <?php else :
+        echo Html::a(
+            '<i class="glyphicon glyphicon-pencil"></i> Input MoU Baru',
+            ['mou', 'id' => $pemda->id],
+            [
+                'title' => "Input MoU Baru",
+                'data-toggle' => "modal",
+                'data-target' => "#myModal",
+                'data-title' => "Input MoU Baru",
+                'class' => 'btn btn-lg btn-info'
+            ]
+        );
+    endif;
     ?>
 
-    <div class="row"> <!--Bagian Profil dan Kada -->
+    <div class="row">
+        <!--Bagian Profil dan Kada -->
         <div class="col-md-6">
             <?= GridView::widget([
-                'id' => 'lapbds',    
+                'id' => 'lapbds',
                 'dataProvider' => $dataProviderProfil,
-                'export' => false, 
-                'responsive'=>true,
-                'hover'=>true,     
-                'resizableColumns'=>true,
-                'panel'=>['type'=>'primary', 'heading'=>'<i class="glyphicon glyphicon-list"></i> Profil Pemda',],
-                'responsiveWrap' => false,        
+                'export' => false,
+                'responsive' => true,
+                'hover' => true,
+                'resizableColumns' => true,
+                'panel' => ['type' => 'primary', 'heading' => '<i class="glyphicon glyphicon-list"></i> Profil Pemda',],
+                'responsiveWrap' => false,
                 'toolbar' => [
-                    ['content'=>
-                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/profil/create', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
-                            'class'=>'btn btn-default'
-                        ]).
-                        '{toggleData}'.
-                        '{export}'
+                    [
+                        'content' =>
+                        Html::a(
+                            '<i class="glyphicon glyphicon-plus"></i>',
+                            ['/dataentry/profil/create', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Tambah",
+                                'class' => 'btn btn-default'
+                            ]
+                        ) .
+                            '{toggleData}' .
+                            '{export}'
                     ],
-                ],       
+                ],
                 'pager' => [
                     'firstPageLabel' => 'Awal',
                     'lastPageLabel'  => 'Akhir'
                 ],
-                'pjax'=>true,
-                'pjaxSettings'=>[
+                'pjax' => true,
+                'pjaxSettings' => [
                     'options' => ['id' => 'profil-pjax', 'timeout' => 5000],
-                ],        
+                ],
                 // 'filterModel' => $searchModel,
-                'columns' => require(__DIR__.'/_columnsProfil.php'),
-            ]); ?>        
+                'columns' => require(__DIR__ . '/_columnsProfil.php'),
+            ]); ?>
         </div>
         <div class="col-md-6">
-            <?=GridView::widget([
-                'id'=>'crud-datatable',
+            <?= GridView::widget([
+                'id' => 'crud-datatable',
                 'dataProvider' => $dataProviderKada,
                 // 'filterModel' => $searchModelOpini,
                 'pager' => [
                     'firstPageLabel' => 'Awal',
                     'lastPageLabel'  => 'Akhir'
                 ],
-                'pjax'=>true,
-                'pjaxSettings'=>[
+                'pjax' => true,
+                'pjaxSettings' => [
                     'options' => ['id' => 'kada-pjax', 'timeout' => 5000],
-                ], 
-                'toolbar'=> [
-                    ['content'=>
-                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/kada/create', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
-                            'class'=>'btn btn-default'
-                        ]).
-                        '{toggleData}'.
-                        '{export}'
+                ],
+                'toolbar' => [
+                    [
+                        'content' =>
+                        Html::a(
+                            '<i class="glyphicon glyphicon-plus"></i>',
+                            ['/dataentry/kada/create', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Tambah",
+                                'class' => 'btn btn-default'
+                            ]
+                        ) .
+                            '{toggleData}' .
+                            '{export}'
                     ],
-                ],          
+                ],
                 'striped' => true,
                 'condensed' => true,
-                'responsive' => true,   
-                'responsiveWrap' => false,       
+                'responsive' => true,
+                'responsiveWrap' => false,
                 'panel' => [
-                    'type' => 'primary', 
+                    'type' => 'primary',
                     'heading' => '<i class="glyphicon glyphicon-list"></i> Kepala dan Wakil Kepala Daerah ',
                 ],
-                'columns' => require(__DIR__.'/_columnsKada.php'),
-            ])?>
-        </div>        
+                'columns' => require(__DIR__ . '/_columnsKada.php'),
+            ]) ?>
+        </div>
     </div>
 
-    <div class="row"> <!--Bagian Opini dan APBD -->
+    <div class="row">
+        <!--Bagian Opini dan APBD -->
         <div class="col-md-6">
             <?= GridView::widget([
-                'id' => 'lapbds',    
+                'id' => 'lapbds',
                 'dataProvider' => $dataProviderApbd,
-                'export' => false, 
-                'responsive'=>true,
-                'hover'=>true,     
-                'resizableColumns'=>true,
-                'panel'=>['type'=>'primary', 'heading'=>'<i class="glyphicon glyphicon-list"></i> APBD Tahun '.(substr($tahunBulan, 0, 4)),],
-                'responsiveWrap' => false,        
+                'export' => false,
+                'responsive' => true,
+                'hover' => true,
+                'resizableColumns' => true,
+                'panel' => ['type' => 'primary', 'heading' => '<i class="glyphicon glyphicon-list"></i> APBD Tahun ' . (substr($tahunBulan, 0, 4)),],
+                'responsiveWrap' => false,
                 'toolbar' => [
-                    ['content'=>
-                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/apbd/create', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
-                            'class'=>'btn btn-default'
-                        ]).
-                        '{toggleData}'.
-                        '{export}'
+                    [
+                        'content' =>
+                        Html::a(
+                            '<i class="glyphicon glyphicon-plus"></i>',
+                            ['/dataentry/apbd/create', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Tambah",
+                                'class' => 'btn btn-default'
+                            ]
+                        ) .
+                            '{toggleData}' .
+                            '{export}'
                     ],
-                ],       
+                ],
                 'pager' => [
                     'firstPageLabel' => 'Awal',
                     'lastPageLabel'  => 'Akhir'
                 ],
-                'pjax'=>true,
-                'pjaxSettings'=>[
+                'pjax' => true,
+                'pjaxSettings' => [
                     'options' => ['id' => 'lapbds-pjax', 'timeout' => 5000],
-                ],        
+                ],
                 // 'filterModel' => $searchModel,
-                'columns' => require(__DIR__.'/_columnsApbd.php'),
-            ]); ?>        
+                'columns' => require(__DIR__ . '/_columnsApbd.php'),
+            ]); ?>
         </div>
         <div class="col-md-6">
-            <?=GridView::widget([
-                'id'=>'crud-datatable',
+            <?= GridView::widget([
+                'id' => 'crud-datatable',
                 'dataProvider' => $dataProviderOpini,
                 // 'filterModel' => $searchModelOpini,
                 'pager' => [
                     'firstPageLabel' => 'Awal',
                     'lastPageLabel'  => 'Akhir'
                 ],
-                'pjax'=>true,
-                'pjaxSettings'=>[
+                'pjax' => true,
+                'pjaxSettings' => [
                     'options' => ['id' => 'opini-pjax', 'timeout' => 5000],
-                ], 
-                'toolbar'=> [
-                    ['content'=>
-                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/opini/create', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
-                            'class'=>'btn btn-default'
-                        ]).
-                        '{toggleData}'.
-                        '{export}'
+                ],
+                'toolbar' => [
+                    [
+                        'content' =>
+                        Html::a(
+                            '<i class="glyphicon glyphicon-plus"></i>',
+                            ['/dataentry/opini/create', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Tambah",
+                                'class' => 'btn btn-default'
+                            ]
+                        ) .
+                            '{toggleData}' .
+                            '{export}'
                     ],
-                ],          
+                ],
                 'striped' => true,
                 'condensed' => true,
-                'responsive' => true,   
-                'responsiveWrap' => false,       
+                'responsive' => true,
+                'responsiveWrap' => false,
                 'panel' => [
-                    'type' => 'primary', 
-                    'heading' => '<i class="glyphicon glyphicon-list"></i> Opini LKPD Tahun '.(substr($tahunBulan, 0, 4)-1),
+                    'type' => 'primary',
+                    'heading' => '<i class="glyphicon glyphicon-list"></i> Opini LKPD Tahun ' . (substr($tahunBulan, 0, 4) - 1),
                 ],
-                'columns' => require(__DIR__.'/_columnsOpini.php'),
-            ])?>
-        </div>        
+                'columns' => require(__DIR__ . '/_columnsOpini.php'),
+            ]) ?>
+        </div>
     </div>
 
-    <div class="row"> <!-- bagian Evaluasi dan kasus -->
+    <div class="row">
+        <!-- bagian Evaluasi dan kasus -->
         <div class="col-md-6">
-            <?=GridView::widget([
-                'id'=>'crud-datatable',
+            <?= GridView::widget([
+                'id' => 'crud-datatable',
                 'dataProvider' => $dataProviderEvaluasi,
                 // 'filterModel' => $searchModelOpini,
                 'pager' => [
                     'firstPageLabel' => 'Awal',
                     'lastPageLabel'  => 'Akhir'
                 ],
-                'pjax'=>true,
-                'pjaxSettings'=>[
+                'pjax' => true,
+                'pjaxSettings' => [
                     'options' => ['id' => 'evaluasi-pjax', 'timeout' => 5000],
-                ], 
-                'toolbar'=> [
-                    ['content'=>
-                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/evaluasi/create', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
-                            'class'=>'btn btn-default'
-                        ]).
-                        '{toggleData}'.
-                        '{export}'
+                ],
+                'toolbar' => [
+                    [
+                        'content' =>
+                        Html::a(
+                            '<i class="glyphicon glyphicon-plus"></i>',
+                            ['/dataentry/evaluasi/create', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Tambah",
+                                'class' => 'btn btn-default'
+                            ]
+                        ) .
+                            '{toggleData}' .
+                            '{export}'
                     ],
-                ],          
+                ],
                 'striped' => true,
                 'condensed' => true,
-                'responsive' => true,   
-                'responsiveWrap' => false,       
+                'responsive' => true,
+                'responsiveWrap' => false,
                 'panel' => [
-                    'type' => 'primary', 
-                    'heading' => '<i class="glyphicon glyphicon-list"></i> Hasil Evaluasi Tahun '.(substr($tahunBulan, 0, 4)-1),
+                    'type' => 'primary',
+                    'heading' => '<i class="glyphicon glyphicon-list"></i> Hasil Evaluasi Tahun ' . (substr($tahunBulan, 0, 4) - 1),
                 ],
-                'columns' => require(__DIR__.'/_columnsEvaluasi.php'),
-            ])?>
+                'columns' => require(__DIR__ . '/_columnsEvaluasi.php'),
+            ]) ?>
         </div>
 
         <div class="col-md-6">
-            <?=GridView::widget([
-                'id'=>'crud-datatable',
+            <?= GridView::widget([
+                'id' => 'crud-datatable',
                 'dataProvider' => $dataProviderKasus,
                 // 'filterModel' => $searchModelOpini,
                 'pager' => [
                     'firstPageLabel' => 'Awal',
                     'lastPageLabel'  => 'Akhir'
                 ],
-                'pjax'=>true,
-                'pjaxSettings'=>[
+                'pjax' => true,
+                'pjaxSettings' => [
                     'options' => ['id' => 'kasus-pjax', 'timeout' => 5000],
-                ], 
-                'toolbar'=> [
-                    ['content'=>
-                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/kasus/create', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
-                            'class'=>'btn btn-default'
-                        ]).
-                        '{toggleData}'.
-                        '{export}'
+                ],
+                'toolbar' => [
+                    [
+                        'content' =>
+                        Html::a(
+                            '<i class="glyphicon glyphicon-plus"></i>',
+                            ['/dataentry/kasus/create', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Tambah",
+                                'class' => 'btn btn-default'
+                            ]
+                        ) .
+                            '{toggleData}' .
+                            '{export}'
                     ],
-                ],          
+                ],
                 'striped' => true,
                 'condensed' => true,
-                'responsive' => true,   
-                'responsiveWrap' => false,       
+                'responsive' => true,
+                'responsiveWrap' => false,
                 'panel' => [
-                    'type' => 'primary', 
-                    'heading' => '<i class="glyphicon glyphicon-list"></i> Kasus Sejak Tahun '.(substr($tahunBulan, 0, 4)-3),
+                    'type' => 'primary',
+                    'heading' => '<i class="glyphicon glyphicon-list"></i> Kasus Sejak Tahun ' . (substr($tahunBulan, 0, 4) - 3),
                 ],
-                'columns' => require(__DIR__.'/_columnsKasus.php'),
-            ])?>
+                'columns' => require(__DIR__ . '/_columnsKasus.php'),
+            ]) ?>
         </div>
     </div>
 
-        <div class="row"> <!-- bagian Lappd dan  -->
+    <div class="row">
+        <!-- bagian Lappd dan  -->
         <div class="col-md-6">
-            <?=GridView::widget([
-                'id'=>'crud-datatable',
+            <?= GridView::widget([
+                'id' => 'crud-datatable',
                 'dataProvider' => $dataProviderLappd,
                 // 'filterModel' => $searchModelOpini,
                 'pager' => [
                     'firstPageLabel' => 'Awal',
                     'lastPageLabel'  => 'Akhir'
                 ],
-                'pjax'=>true,
-                'pjaxSettings'=>[
+                'pjax' => true,
+                'pjaxSettings' => [
                     'options' => ['id' => 'lappds-pjax', 'timeout' => 5000],
-                ], 
-                'toolbar'=> [
-                    ['content'=>
-                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/lappd/create', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
-                            'class'=>'btn btn-default'
-                        ]).
-                        '{toggleData}'.
-                        '{export}'
+                ],
+                'toolbar' => [
+                    [
+                        'content' =>
+                        Html::a(
+                            '<i class="glyphicon glyphicon-plus"></i>',
+                            ['/dataentry/lappd/create', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Tambah",
+                                'class' => 'btn btn-default'
+                            ]
+                        ) .
+                            '{toggleData}' .
+                            '{export}'
                     ],
-                ],          
+                ],
                 'striped' => true,
                 'condensed' => true,
-                'responsive' => true,   
-                'responsiveWrap' => false,       
+                'responsive' => true,
+                'responsiveWrap' => false,
                 'panel' => [
-                    'type' => 'primary', 
-                    'heading' => '<i class="glyphicon glyphicon-list"></i> Penyampaian Lakip dan LPPD '.(substr($tahunBulan, 0, 4)-1),
+                    'type' => 'primary',
+                    'heading' => '<i class="glyphicon glyphicon-list"></i> Penyampaian Lakip dan LPPD ' . (substr($tahunBulan, 0, 4) - 1),
                 ],
-                'columns' => require(__DIR__.'/_columnsLappd.php'),
-            ])?>
+                'columns' => require(__DIR__ . '/_columnsLappd.php'),
+            ]) ?>
         </div>
 
         <div class="col-md-6">
-            <?=GridView::widget([
-                'id'=>'crud-datatable',
+            <?= GridView::widget([
+                'id' => 'crud-datatable',
                 'dataProvider' => $dataProviderSimda,
                 // 'filterModel' => $searchModelOpini,
                 'pager' => [
                     'firstPageLabel' => 'Awal',
                     'lastPageLabel'  => 'Akhir'
                 ],
-                'pjax'=>true,
-                'pjaxSettings'=>[
+                'pjax' => true,
+                'pjaxSettings' => [
                     'options' => ['id' => 'simda-pjax', 'timeout' => 5000],
-                ], 
-                'toolbar'=> [
-                    ['content'=>
-                        Html::a('<i class="glyphicon glyphicon-plus"></i>', ['/dataentry/simda/create', 'id' => $pemda->id],
-                        [
-                            'data-toggle'=>"modal",
-                            'data-target'=>"#myModal",
-                            'data-title'=>"Tambah",
-                            'class'=>'btn btn-default'
-                        ]).
-                        '{toggleData}'.
-                        '{export}'
+                ],
+                'toolbar' => [
+                    [
+                        'content' =>
+                        Html::a(
+                            '<i class="glyphicon glyphicon-plus"></i>',
+                            ['/dataentry/simda/create', 'id' => $pemda->id],
+                            [
+                                'data-toggle' => "modal",
+                                'data-target' => "#myModal",
+                                'data-title' => "Tambah",
+                                'class' => 'btn btn-default'
+                            ]
+                        ) .
+                            '{toggleData}' .
+                            '{export}'
                     ],
-                ],          
+                ],
                 'striped' => true,
                 'condensed' => true,
-                'responsive' => true,   
-                'responsiveWrap' => false,       
+                'responsive' => true,
+                'responsiveWrap' => false,
                 'panel' => [
-                    'type' => 'primary', 
-                    'heading' => '<i class="glyphicon glyphicon-list"></i> Penggunaan Simda '.(substr($tahunBulan, 0, 4)),
+                    'type' => 'primary',
+                    'heading' => '<i class="glyphicon glyphicon-list"></i> Penggunaan Simda ' . (substr($tahunBulan, 0, 4)),
                 ],
-                'columns' => require(__DIR__.'/_columnsSimda.php'),
-            ])?>
+                'columns' => require(__DIR__ . '/_columnsSimda.php'),
+            ]) ?>
         </div>
     </div>
 </div>
 
-<?php 
+<?php
 Modal::begin([
-    "id"=>"ajaxCrudModal",
-    "footer"=>"",// always need it for jquery plugin
+    "id" => "ajaxCrudModal",
+    "footer" => "", // always need it for jquery plugin
     'options' => [
         'tabindex' => false // important for Select2 to work properly
-    ], 
+    ],
 
 ]);
-Modal::end(); 
+Modal::end();
 Modal::begin([
-    "id"=>"ajaxCrudModal",
-    "footer"=>"",// always need it for jquery plugin
+    "id" => "ajaxCrudModal",
+    "footer" => "", // always need it for jquery plugin
 
 ]);
-Modal::end(); 
+Modal::end();
 
 Modal::begin([
     'id' => 'myModal',
     'header' => '<h4 class="modal-title">Lihat lebih...</h4>',
     'options' => [
         'tabindex' => false // important for Select2 to work properly
-    ], 
+    ],
 ]);
- 
+
 echo '...';
- 
+
 Modal::end();
 
-$this->registerJs(<<<JS
+$this->registerJs(
+    <<<JS
     $('#myModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget)
         var modal = $(this)
