@@ -22,7 +22,7 @@ if (Yii::$app->session->get('tahun')) {
             <?php if (Yii::$app->user->identity->perwakilan_id != NULL && Yii::$app->user->identity->perwakilan_id == NULL) : ?>
                 <span class"pull-left"><B><?= strtoupper(Yii::$app->user->identity->refPerwakilan->name) ?></B></span>
             <?php endif; ?>
-            <?php if (Yii::$app->user->identity->pemda_id != NULL) : ?>
+            <?php if (isset(Yii::$app->user->identity->pemda_id)) : ?>
                 <span class"pull-left"><B><?= strtoupper(Yii::$app->user->identity->refPemda->name) ?></B></span>
             <?php endif; ?>
         </a>
