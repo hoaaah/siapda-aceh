@@ -43,10 +43,10 @@ class Lappds extends \yii\db\ActiveRecord
     {
         return [
             [['bulan', 'perwakilan_id', 'province_id', 'pemda_id', 'katc_id'], 'required'],
-            [['katc_id'], 'integer'],
+            [['perwakilan_id', 'province_id', 'katc_id'], 'integer'],
             [['tanggal', 'created', 'updated'], 'safe'],
             [['bulan'], 'string', 'max' => 6],
-            [['perwakilan_id', 'province_id', 'stat_id'], 'string', 'max' => 2],
+            [['stat_id'], 'string', 'max' => 2],
             [['pemda_id'], 'string', 'max' => 5],
             [['pihak_bantu'], 'string', 'max' => 20],
             [['ket'], 'string', 'max' => 255],
