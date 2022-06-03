@@ -29,3 +29,5 @@ phpunit.phar
 /phpunit.xml
 _protected/runtime/session/*
 !_protected/runtime/session/.gitignore
+
+volumes/
